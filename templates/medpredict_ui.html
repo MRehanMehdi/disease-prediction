@@ -1,566 +1,1400 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MedPredict AI</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>MedPredict AI</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ══════════════════════════════════════════════════════════
+   RESET & VARIABLES
+══════════════════════════════════════════════════════════ */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-  :root {
-    --bg:         #ffffff;
-    --sidebar-bg: #f7f7f8;
-    --border:     #e5e5e5;
-    --text:       #111111;
-    --sub:        #8e8ea0;
-    --blue:       #4a90d9;
-    --purple:     #7b5ea7;
-    --input-bg:   #f4f4f4;
-    --hover:      #ebebeb;
-  }
+      :root {
+        --bg: #ffffff;
+        --sidebar-bg: #f7f7f8;
+        --border: #e5e5e5;
+        --text: #111111;
+        --sub: #8e8ea0;
+        --blue: #4a90d9;
+        --purple: #7b5ea7;
+        --input-bg: #f4f4f4;
+        --hover: #ebebeb;
+        --sidebar-w: 260px;
+      }
 
-  body {
-    font-family: 'DM Sans', -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    height: 100vh;
-    display: flex;
-    overflow: hidden;
-  }
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        font-family:
+          "DM Sans",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow: hidden;
+      }
 
-  /* ══ SIDEBAR ══════════════════════════════════════════════ */
-  .sidebar {
-    width: 260px; min-width: 260px;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    height: 100vh; position: relative;
-  }
-  .sidebar-top { padding: 12px 12px 6px; }
-  .new-btn {
-    display: flex; align-items: center; gap: 8px;
-    width: 100%; padding: 9px 14px;
-    background: transparent; border: 1px solid #d9d9d9;
-    border-radius: 8px; font-size: 0.875rem; font-weight: 500;
-    color: var(--text); cursor: pointer;
-    font-family: 'DM Sans', sans-serif; transition: background 0.15s;
-  }
-  .new-btn:hover { background: var(--hover); }
+      /* ══════════════════════════════════════════════════════════
+   LAYOUT  — desktop: sidebar + main side by side
+            mobile:  sidebar hidden off-screen, slides in
+══════════════════════════════════════════════════════════ */
+      .app {
+        display: flex;
+        height: 100vh;
+        width: 100%;
+        position: relative;
+      }
 
-  .sidebar-scroll { flex: 1; overflow-y: auto; padding-bottom: 56px; }
-  .sidebar-scroll::-webkit-scrollbar { width: 3px; }
-  .sidebar-scroll::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 2px; }
+      /* ── SIDEBAR ─────────────────────────────────────────────── */
+      .sidebar {
+        width: var(--sidebar-w);
+        min-width: var(--sidebar-w);
+        background: var(--sidebar-bg);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        position: relative;
+        z-index: 200;
+        flex-shrink: 0;
+        transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      }
 
-  .group-label {
-    font-size: 0.68rem; font-weight: 600; color: var(--sub);
-    text-transform: uppercase; letter-spacing: 0.9px;
-    padding: 12px 16px 5px;
-  }
-  .session-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 16px; cursor: pointer;
-    border-radius: 6px; margin: 1px 8px; transition: background 0.12s;
-  }
-  .session-item:hover { background: var(--hover); }
-  .session-item.active { background: #e6e6e6; }
-  .session-icon { color: var(--sub); font-size: 0.9rem; }
-  .session-title {
-    font-size: 0.875rem; color: var(--text);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .sidebar-footer {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 12px 16px; border-top: 1px solid var(--border);
-    background: var(--sidebar-bg);
-    display: flex; align-items: center; gap: 9px;
-    font-size: 0.875rem; color: #555; cursor: pointer;
-  }
-  .sidebar-footer:hover { background: var(--hover); }
+      .sidebar-top {
+        padding: 12px 12px 6px;
+      }
 
-  /* ══ MAIN ═════════════════════════════════════════════════ */
-  .main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; min-width: 0; }
+      .new-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 9px 14px;
+        background: transparent;
+        border: 1px solid #d9d9d9;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--text);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.15s;
+        text-align: left;
+      }
+      .new-btn:hover {
+        background: var(--hover);
+      }
 
-  .header {
-    height: 52px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 20px;
-    gap: 10px; flex-shrink: 0; background: #fff;
-  }
-  .header-icon {
-    width: 28px; height: 28px; background: #111; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 0.85rem;
-  }
-  .header-title { font-size: 1rem; font-weight: 600; }
+      .sidebar-scroll {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 56px;
+      }
+      .sidebar-scroll::-webkit-scrollbar {
+        width: 3px;
+      }
+      .sidebar-scroll::-webkit-scrollbar-thumb {
+        background: #d0d0d0;
+        border-radius: 2px;
+      }
 
-  /* ══ CHAT AREA ════════════════════════════════════════════ */
-  .chat-area { flex: 1; overflow-y: auto; }
-  .chat-area::-webkit-scrollbar { width: 5px; }
-  .chat-area::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 3px; }
+      .group-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--sub);
+        text-transform: uppercase;
+        letter-spacing: 0.9px;
+        padding: 12px 16px 5px;
+      }
 
-  .chat-inner {
-    max-width: 720px; width: 100%; margin: 0 auto;
-    padding: 32px 24px 24px; min-height: 100%;
-    display: flex; flex-direction: column;
-  }
+      .session-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px;
+        cursor: pointer;
+        border-radius: 6px;
+        margin: 1px 8px;
+        transition: background 0.12s;
+      }
+      .session-item:hover {
+        background: var(--hover);
+      }
+      .session-item.active {
+        background: #e6e6e6;
+      }
+      .session-icon {
+        color: var(--sub);
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+      .session-title {
+        font-size: 0.875rem;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-  /* Welcome */
-  .welcome {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center; padding: 60px 20px;
-  }
-  .welcome-icon  { font-size: 2.5rem; margin-bottom: 16px; }
-  .welcome-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 8px; }
-  .welcome-sub   { font-size: 0.9rem; color: var(--sub); line-height: 1.65; max-width: 380px; }
+      .sidebar-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 12px 16px;
+        border-top: 1px solid var(--border);
+        background: var(--sidebar-bg);
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 0.875rem;
+        color: #555;
+        cursor: pointer;
+      }
+      .sidebar-footer:hover {
+        background: var(--hover);
+      }
 
-  /* User bubble */
-  .msg-user { display: flex; justify-content: flex-end; align-items: flex-start; gap: 10px; margin: 10px 0; }
-  .msg-user-bubble {
-    background: #f4f4f4; border-radius: 18px 18px 4px 18px;
-    padding: 12px 18px; max-width: 68%;
-    font-size: 0.925rem; line-height: 1.6;
-  }
-  .msg-avatar {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--blue); display: flex; align-items: center;
-    justify-content: center; color: #fff; font-size: 0.8rem;
-    font-weight: 600; flex-shrink: 0;
-  }
+      /* Overlay (mobile only) */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 150;
+      }
 
-  /* AI bubble */
-  .msg-ai { display: flex; align-items: flex-start; gap: 12px; margin: 10px 0; }
-  .msg-ai-icon {
-    width: 32px; height: 32px; border-radius: 6px;
-    background: #111; display: flex; align-items: center;
-    justify-content: center; color: #fff; font-size: 0.85rem;
-    flex-shrink: 0; margin-top: 2px;
-  }
-  .msg-ai-body { flex: 1; min-width: 0; }
+      /* ── MAIN ─────────────────────────────────────────────────── */
+      .main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+        min-width: 0;
+      }
 
-  /* Typing dots */
-  @keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
-  .dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--sub); margin:0 2px; animation:blink 1.4s infinite; }
-  .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
-  .typing-wrap { padding: 10px 0; }
+      /* Header */
+      .header {
+        height: 52px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        gap: 10px;
+        flex-shrink: 0;
+        background: #fff;
+      }
+      .menu-btn {
+        display: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        color: var(--text);
+        flex-shrink: 0;
+      }
+      .menu-btn:hover {
+        background: #f0f0f0;
+      }
+      .header-icon {
+        width: 28px;
+        height: 28px;
+        background: #111;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+      }
+      .header-title {
+        font-size: 1rem;
+        font-weight: 600;
+      }
 
-  /* ══ PREDICTION CARDS ═════════════════════════════════════ */
-  .preds-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .preds-title { font-size: 1rem; font-weight: 600; }
-  .export-btn {
-    display: flex; align-items: center; gap: 6px;
-    background: none; border: 1px solid var(--border);
-    border-radius: 8px; padding: 6px 12px;
-    font-size: 0.8rem; font-weight: 500; color: #555;
-    cursor: pointer; font-family: 'DM Sans', sans-serif;
-    transition: background 0.12s, border-color 0.12s;
-  }
-  .export-btn:hover { background: #f4f4f4; border-color: #c0c0c0; }
+      /* ── CHAT AREA ───────────────────────────────────────────── */
+      .chat-area {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .chat-area::-webkit-scrollbar {
+        width: 4px;
+      }
+      .chat-area::-webkit-scrollbar-thumb {
+        background: #d0d0d0;
+        border-radius: 2px;
+      }
 
-  .pred-card {
-    border: 1.5px solid var(--border); border-radius: 12px;
-    padding: 14px 18px; margin-bottom: 8px;
-    display: flex; align-items: center; justify-content: space-between;
-    background: #fff; transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .pred-card:hover { border-color: #c0c0c0; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .pred-card.top-card { border-color: var(--blue); }
+      .chat-inner {
+        max-width: 700px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 28px 16px 20px;
+        display: flex;
+        flex-direction: column;
+      }
 
-  .pred-left { display: flex; flex-direction: column; gap: 5px; }
-  .pred-name { font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-  .badge-top {
-    background: var(--blue); color: #fff; border-radius: 20px;
-    font-size: 0.68rem; font-weight: 600; padding: 2px 8px;
-  }
-  .pred-meta { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--sub); }
-  .model-tag {
-    font-size: 0.72rem; font-weight: 500; color: #555;
-    background: #f0f0f0; border-radius: 4px; padding: 2px 7px;
-  }
-  .sev-badge { border-radius: 6px; padding: 2px 9px; font-size: 0.75rem; font-weight: 600; }
-  .sev-High    { background: #fff0f0; color: #d93025; }
-  .sev-Medium  { background: #fff8e6; color: #e37400; }
-  .sev-Low     { background: #e6f4ea; color: #1a7f37; }
-  .sev-Unknown { background: #f0f0f0; color: #666; }
+      /* Welcome */
+      .welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 48px 20px;
+        min-height: 60vh;
+      }
+      .welcome-icon {
+        font-size: 2.2rem;
+        margin-bottom: 14px;
+      }
+      .welcome-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .welcome-sub {
+        font-size: 0.875rem;
+        color: var(--sub);
+        line-height: 1.65;
+        max-width: 340px;
+      }
 
-  .pred-right { text-align: right; }
-  .pred-conf { font-size: 1.55rem; font-weight: 700; line-height: 1; }
-  .conf-rf { color: var(--blue); }
-  .conf-nn { color: var(--purple); }
-  .pred-conf-sub { font-size: 0.72rem; color: var(--sub); margin-top: 2px; }
+      /* ── MESSAGE BUBBLES ─────────────────────────────────────── */
+      .msg-user {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-start;
+        gap: 8px;
+        margin: 10px 0;
+      }
+      .msg-user-bubble {
+        background: #f4f4f4;
+        border-radius: 18px 18px 4px 18px;
+        padding: 11px 16px;
+        max-width: min(72%, 480px);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        word-break: break-word;
+      }
+      .msg-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
 
-  /* Detail card */
-  .sec-label {
-    font-size: 0.75rem; font-weight: 600; color: var(--sub);
-    text-transform: uppercase; letter-spacing: 0.8px; margin: 20px 0 10px;
-  }
-  .detail-card { border: 1px solid var(--border); border-radius: 12px; padding: 18px; background: #fff; }
-  .detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .detail-icon-box {
-    width: 42px; height: 42px; border-radius: 10px;
-    background: #fff8e6; display: flex; align-items: center;
-    justify-content: center; font-size: 1.2rem; flex-shrink: 0;
-  }
-  .detail-name  { font-size: 1rem; font-weight: 600; }
-  .detail-sev   { font-size: 0.8rem; color: var(--sub); margin-top: 2px; }
-  .detail-section { font-size: 0.78rem; font-weight: 600; margin: 14px 0 7px; }
-  .detail-desc  { font-size: 0.875rem; color: #444; line-height: 1.75; }
-  .prec-item {
-    display: flex; align-items: flex-start; gap: 10px;
-    font-size: 0.875rem; color: #444; margin-bottom: 7px; line-height: 1.55;
-  }
-  .prec-icon { color: var(--blue); flex-shrink: 0; margin-top: 2px; }
-  .error-msg { font-size: 0.9rem; color: #555; padding: 8px 0; line-height: 1.65; }
+      .msg-ai {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin: 10px 0;
+      }
+      .msg-ai-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        background: #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .msg-ai-body {
+        flex: 1;
+        min-width: 0;
+      }
 
-  /* ══ INPUT BAR ════════════════════════════════════════════ */
-  .input-section { flex-shrink: 0; border-top: 1px solid var(--border); background: #fff; }
-  .input-inner { max-width: 720px; margin: 0 auto; padding: 14px 24px 16px; }
+      /* Typing dots */
+      @keyframes blink {
+        0%,
+        80%,
+        100% {
+          opacity: 0;
+        }
+        40% {
+          opacity: 1;
+        }
+      }
+      .dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--sub);
+        margin: 0 2px;
+        animation: blink 1.4s infinite;
+      }
+      .dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+      .typing-wrap {
+        padding: 10px 0;
+      }
 
-  .input-wrap { position: relative; }
-  .input-textarea {
-    width: 100%; background: var(--input-bg);
-    border: 1.5px solid transparent; border-radius: 16px;
-    padding: 14px 52px 14px 18px;
-    font-size: 0.925rem; font-family: 'DM Sans', sans-serif;
-    color: var(--text); resize: none; outline: none;
-    min-height: 56px; max-height: 160px; line-height: 1.5;
-    transition: border-color 0.15s, background 0.15s;
-  }
-  .input-textarea:focus { border-color: #c0c0c0; background: #fff; }
-  .input-textarea::placeholder { color: #aaa; }
+      /* ══════════════════════════════════════════════════════════
+   PREDICTION CARDS  — clean, no RF/NN labels
+══════════════════════════════════════════════════════════ */
+      .preds-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .preds-title {
+        font-size: 0.975rem;
+        font-weight: 600;
+      }
 
-  .send-btn {
-    position: absolute; right: 11px; bottom: 11px;
-    width: 34px; height: 34px; background: #111; border: none;
-    border-radius: 8px; color: #fff; font-size: 1rem;
-    cursor: pointer; display: flex; align-items: center;
-    justify-content: center; transition: background 0.15s;
-  }
-  .send-btn:hover { background: #333; }
-  .send-btn:disabled { background: #ccc; cursor: default; }
+      .export-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 5px 11px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: #555;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        white-space: nowrap;
+        transition:
+          background 0.12s,
+          border-color 0.12s;
+      }
+      .export-btn:hover {
+        background: #f4f4f4;
+        border-color: #c0c0c0;
+      }
 
-  .input-actions { display: flex; align-items: center; gap: 4px; margin-top: 8px; }
-  .action-btn {
-    display: flex; align-items: center; gap: 5px;
-    background: none; border: none; cursor: pointer;
-    color: var(--sub); font-size: 0.82rem;
-    padding: 6px 10px; border-radius: 8px;
-    font-family: 'DM Sans', sans-serif; transition: color 0.12s, background 0.12s;
-  }
-  .action-btn:hover { color: var(--text); background: #f0f0f0; }
-  .action-btn.active { color: var(--blue); background: #eef5fd; }
+      /* Disease card */
+      .pred-card {
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        padding: 13px 16px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+        gap: 10px;
+      }
+      .pred-card:hover {
+        border-color: #c0c0c0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .pred-card.top-card {
+        border-color: var(--blue);
+      }
 
-  .input-disclaimer { text-align: center; font-size: 0.72rem; color: #bbb; margin-top: 10px; }
+      .pred-left {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        flex: 1;
+        min-width: 0;
+      }
 
-  /* Panels */
-  .panel { display: none; margin-top: 10px; background: #f7f7f8; border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-  .panel.open { display: block; }
+      .pred-name {
+        font-size: 0.925rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+      }
+      .badge-top {
+        background: var(--blue);
+        color: #fff;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        white-space: nowrap;
+      }
+      .badge-rank {
+        background: #f0f0f0;
+        color: #666;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        white-space: nowrap;
+      }
 
-  /* Voice */
-  .panel-note { font-size: 0.8rem; color: var(--sub); margin-bottom: 12px; text-align: center; }
-  .voice-start-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: #111; color: #fff; border: none; border-radius: 8px;
-    padding: 9px 22px; font-size: 0.875rem; font-weight: 600;
-    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.15s;
-  }
-  .voice-start-btn:hover { background: #333; }
-  .voice-status { font-size: 0.78rem; color: var(--sub); margin-top: 8px; min-height: 18px; text-align: center; }
-  .voice-result {
-    display: none; font-size: 0.875rem; color: var(--text); margin-top: 8px;
-    background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px;
-  }
-  .use-voice-btn {
-    display: none; background: var(--blue); color: #fff; border: none;
-    border-radius: 8px; padding: 7px 18px; font-size: 0.8rem; font-weight: 600;
-    cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 8px; transition: background 0.15s;
-  }
-  .use-voice-btn:hover { background: #3a7fc9; }
+      .pred-meta {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        color: var(--sub);
+      }
 
-  /* Doc */
-  .drop-area {
-    border: 2px dashed #d0d0d0; border-radius: 10px; padding: 22px;
-    text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s;
-  }
-  .drop-area:hover, .drop-area.over { border-color: var(--blue); background: #f0f6ff; }
-  .drop-icon { font-size: 1.5rem; margin-bottom: 6px; }
-  .drop-text { font-size: 0.85rem; color: var(--sub); }
-  .drop-sub  { font-size: 0.75rem; color: #bbb; }
-  .file-input { display: none; }
-  .file-chosen { font-size: 0.82rem; color: var(--blue); margin-top: 8px; font-weight: 500; }
+      /* Severity badge */
+      .sev-badge {
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-size: 0.73rem;
+        font-weight: 600;
+      }
+      .sev-High {
+        background: #fff0f0;
+        color: #d93025;
+      }
+      .sev-Medium {
+        background: #fff8e6;
+        color: #e37400;
+      }
+      .sev-Low {
+        background: #e6f4ea;
+        color: #1a7f37;
+      }
+      .sev-Unknown {
+        background: #f0f0f0;
+        color: #666;
+      }
 
-  .doc-extra {
-    width: 100%; margin-top: 10px; background: #fff;
-    border: 1px solid var(--border); border-radius: 8px;
-    padding: 10px 14px; font-size: 0.875rem; font-family: 'DM Sans', sans-serif;
-    color: var(--text); outline: none; resize: none; height: 58px; transition: border-color 0.15s;
-  }
-  .doc-extra:focus { border-color: var(--blue); }
-  .doc-extra::placeholder { color: #aaa; }
+      /* Confidence meter */
+      .conf-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 3px;
+        flex-shrink: 0;
+      }
+      .conf-num {
+        font-size: 1.45rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .conf-top {
+        color: var(--blue);
+      }
+      .conf-2nd {
+        color: #555;
+      }
+      .conf-3rd {
+        color: #888;
+      }
+      .conf-sub {
+        font-size: 0.68rem;
+        color: var(--sub);
+      }
 
-  .analyze-btn {
-    width: 100%; margin-top: 10px; background: #111; color: #fff;
-    border: none; border-radius: 8px; padding: 10px;
-    font-size: 0.875rem; font-weight: 600; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; transition: background 0.15s;
-  }
-  .analyze-btn:hover { background: #333; }
-  .analyze-btn:disabled { background: #ccc; cursor: default; }
-</style>
-</head>
-<body>
+      /* Confidence bar */
+      .conf-bar-track {
+        width: 64px;
+        height: 4px;
+        background: #eee;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .conf-bar-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.6s ease;
+      }
+      .fill-top {
+        background: var(--blue);
+      }
+      .fill-2nd {
+        background: #999;
+      }
+      .fill-3rd {
+        background: #bbb;
+      }
 
-<!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
-<div class="sidebar">
-  <div class="sidebar-top">
-    <button class="new-btn" onclick="newAnalysis()">＋ &nbsp; New Analysis</button>
-  </div>
-  <div class="sidebar-scroll" id="sessionList"></div>
-  <div class="sidebar-footer">⚙️ &nbsp; Settings</div>
-</div>
+      /* ── DETAIL CARD ─────────────────────────────────────────── */
+      .sec-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--sub);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin: 18px 0 9px;
+      }
+      .detail-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        background: #fff;
+      }
+      .detail-header {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 13px;
+      }
+      .detail-icon-box {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: #fff8e6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+      }
+      .detail-name {
+        font-size: 0.975rem;
+        font-weight: 600;
+      }
+      .detail-sev {
+        font-size: 0.78rem;
+        color: var(--sub);
+        margin-top: 2px;
+      }
+      .detail-section {
+        font-size: 0.76rem;
+        font-weight: 600;
+        margin: 13px 0 6px;
+      }
+      .detail-desc {
+        font-size: 0.875rem;
+        color: #444;
+        line-height: 1.75;
+      }
 
-<!-- ══ MAIN ═════════════════════════════════════════════════ -->
-<div class="main">
-  <div class="header">
-    <div class="header-icon">🩺</div>
-    <span class="header-title">MedPredict AI</span>
-  </div>
+      .prec-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        font-size: 0.875rem;
+        color: #444;
+        margin-bottom: 6px;
+        line-height: 1.55;
+      }
+      .prec-icon {
+        color: var(--blue);
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
 
-  <div class="chat-area" id="chatArea">
-    <div class="chat-inner" id="chatInner">
-      <div class="welcome" id="welcomeScreen">
-        <div class="welcome-icon">🩺</div>
-        <div class="welcome-title">MedPredict AI</div>
-        <div class="welcome-sub">Enter your symptoms for AI-powered analysis</div>
+      .error-msg {
+        font-size: 0.875rem;
+        color: #555;
+        padding: 8px 0;
+        line-height: 1.65;
+      }
+
+      /* ══════════════════════════════════════════════════════════
+   INPUT BAR
+══════════════════════════════════════════════════════════ */
+      .input-section {
+        flex-shrink: 0;
+        border-top: 1px solid var(--border);
+        background: #fff;
+        /* safe area for mobile (notch) */
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .input-inner {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 12px 16px 14px;
+      }
+
+      .input-wrap {
+        position: relative;
+      }
+      .input-textarea {
+        width: 100%;
+        background: var(--input-bg);
+        border: 1.5px solid transparent;
+        border-radius: 16px;
+        padding: 12px 50px 12px 16px;
+        font-size: 0.9rem;
+        font-family: "DM Sans", sans-serif;
+        color: var(--text);
+        resize: none;
+        outline: none;
+        min-height: 50px;
+        max-height: 140px;
+        line-height: 1.5;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+        -webkit-appearance: none;
+      }
+      .input-textarea:focus {
+        border-color: #c0c0c0;
+        background: #fff;
+      }
+      .input-textarea::placeholder {
+        color: #aaa;
+      }
+
+      .send-btn {
+        position: absolute;
+        right: 10px;
+        bottom: 9px;
+        width: 32px;
+        height: 32px;
+        background: #111;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.95rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .send-btn:hover {
+        background: #333;
+      }
+      .send-btn:disabled {
+        background: #ccc;
+        cursor: default;
+      }
+
+      .input-actions {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        margin-top: 8px;
+      }
+      .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--sub);
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-family: "DM Sans", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+          color 0.12s,
+          background 0.12s;
+      }
+      .action-btn:hover,
+      .action-btn:active {
+        color: var(--text);
+        background: #f0f0f0;
+      }
+      .action-btn.active {
+        color: var(--blue);
+        background: #eef5fd;
+      }
+
+      .input-disclaimer {
+        text-align: center;
+        font-size: 0.7rem;
+        color: #ccc;
+        margin-top: 9px;
+      }
+
+      /* ── PANELS ───────────────────────────────────────────────── */
+      .panel {
+        display: none;
+        margin-top: 10px;
+        background: #f7f7f8;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+      }
+      .panel.open {
+        display: block;
+      }
+
+      .panel-note {
+        font-size: 0.8rem;
+        color: var(--sub);
+        margin-bottom: 11px;
+        text-align: center;
+      }
+
+      .voice-start-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.15s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .voice-start-btn:hover {
+        background: #333;
+      }
+
+      .voice-status {
+        font-size: 0.78rem;
+        color: var(--sub);
+        margin-top: 8px;
+        min-height: 18px;
+        text-align: center;
+      }
+      .voice-result {
+        display: none;
+        font-size: 0.875rem;
+        color: var(--text);
+        margin-top: 8px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 13px;
+      }
+      .use-voice-btn {
+        display: none;
+        background: var(--blue);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 7px 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        margin-top: 8px;
+        transition: background 0.15s;
+      }
+      .use-voice-btn:hover {
+        background: #3a7fc9;
+      }
+
+      /* Doc panel */
+      .drop-area {
+        border: 2px dashed #d0d0d0;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .drop-area:hover,
+      .drop-area.over {
+        border-color: var(--blue);
+        background: #f0f6ff;
+      }
+      .drop-icon {
+        font-size: 1.4rem;
+        margin-bottom: 5px;
+      }
+      .drop-text {
+        font-size: 0.82rem;
+        color: var(--sub);
+      }
+      .drop-sub {
+        font-size: 0.72rem;
+        color: #bbb;
+        margin-top: 3px;
+      }
+      .file-input {
+        display: none;
+      }
+      .file-chosen {
+        font-size: 0.8rem;
+        color: var(--blue);
+        margin-top: 7px;
+        font-weight: 500;
+      }
+
+      .doc-extra {
+        width: 100%;
+        margin-top: 9px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 9px 13px;
+        font-size: 0.875rem;
+        font-family: "DM Sans", sans-serif;
+        color: var(--text);
+        outline: none;
+        resize: none;
+        height: 56px;
+        transition: border-color 0.15s;
+        -webkit-appearance: none;
+      }
+      .doc-extra:focus {
+        border-color: var(--blue);
+      }
+      .doc-extra::placeholder {
+        color: #aaa;
+      }
+
+      .analyze-btn {
+        width: 100%;
+        margin-top: 9px;
+        background: #111;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.15s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .analyze-btn:hover {
+        background: #333;
+      }
+      .analyze-btn:disabled {
+        background: #ccc;
+        cursor: default;
+      }
+
+      /* ══════════════════════════════════════════════════════════
+   MOBILE  (≤ 640px)
+══════════════════════════════════════════════════════════ */
+      @media (max-width: 640px) {
+        /* Sidebar: slide in from left */
+        .sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          transform: translateX(-100%);
+          box-shadow: 4px 0 20px rgba(0, 0, 0, 0.12);
+        }
+        .sidebar.open {
+          transform: translateX(0);
+        }
+        .sidebar-overlay.open {
+          display: block;
+        }
+
+        /* Show hamburger in header */
+        .menu-btn {
+          display: flex;
+        }
+
+        /* Chat padding tighter */
+        .chat-inner {
+          padding: 20px 12px 16px;
+        }
+
+        /* Bubbles full-width friendlier */
+        .msg-user-bubble {
+          max-width: 82%;
+          font-size: 0.875rem;
+        }
+
+        /* Prediction cards */
+        .pred-card {
+          padding: 11px 13px;
+        }
+        .pred-name {
+          font-size: 0.875rem;
+        }
+        .conf-num {
+          font-size: 1.25rem;
+        }
+        .conf-bar-track {
+          width: 52px;
+        }
+
+        /* Detail card */
+        .detail-card {
+          padding: 14px;
+        }
+        .detail-desc {
+          font-size: 0.84rem;
+        }
+        .prec-item {
+          font-size: 0.84rem;
+        }
+
+        /* Input */
+        .input-inner {
+          padding: 10px 12px 12px;
+        }
+        .input-textarea {
+          font-size: 0.875rem;
+          padding: 11px 48px 11px 14px;
+        }
+        .send-btn {
+          right: 9px;
+          bottom: 8px;
+          width: 30px;
+          height: 30px;
+          font-size: 0.85rem;
+        }
+
+        /* Disclaimer shorter on mobile */
+        .input-disclaimer {
+          display: none;
+        }
+
+        /* Welcome */
+        .welcome {
+          padding: 32px 16px;
+          min-height: 50vh;
+        }
+        .welcome-title {
+          font-size: 1.3rem;
+        }
+
+        /* Preds header */
+        .preds-title {
+          font-size: 0.9rem;
+        }
+        .export-btn {
+          font-size: 0.72rem;
+          padding: 4px 9px;
+        }
+      }
+
+      /* ══════════════════════════════════════════════════════════
+   MEDIUM (641px – 900px) — tablet
+══════════════════════════════════════════════════════════ */
+      @media (min-width: 641px) and (max-width: 900px) {
+        :root {
+          --sidebar-w: 220px;
+        }
+        .chat-inner {
+          padding: 24px 20px 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- ══ SIDEBAR ══════════════════════════════════════════ -->
+      <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="closeSidebar()"
+      ></div>
+
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+          <button class="new-btn" onclick="newAnalysis()">
+            ＋ &nbsp; New Analysis
+          </button>
+        </div>
+        <div class="sidebar-scroll" id="sessionList"></div>
+        <div class="sidebar-footer">⚙️ &nbsp; Settings</div>
       </div>
-    </div>
-  </div>
 
-  <!-- ══ INPUT ══════════════════════════════════════════════ -->
-  <div class="input-section">
-    <div class="input-inner">
-      <div class="input-wrap">
-        <textarea class="input-textarea" id="mainInput"
-          placeholder="Describe your symptoms... (e.g., 'I have a fever, headache, and body aches')"
-          rows="2" onkeydown="handleKey(event)"></textarea>
-        <button class="send-btn" id="sendBtn" onclick="handleSend()" title="Send">➤</button>
-      </div>
+      <!-- ══ MAIN ═════════════════════════════════════════════ -->
+      <div class="main">
+        <!-- Header -->
+        <div class="header">
+          <button
+            class="menu-btn"
+            id="menuBtn"
+            onclick="toggleSidebar()"
+            title="Menu"
+          >
+            ☰
+          </button>
+          <div class="header-icon">🩺</div>
+          <span class="header-title">MedPredict AI</span>
+        </div>
 
-      <div class="input-actions">
-        <button class="action-btn" id="voiceToggle" onclick="togglePanel('voice')">🎙️ Voice</button>
-        <button class="action-btn" id="docToggle"   onclick="togglePanel('doc')">📄 Document</button>
-      </div>
+        <!-- Chat -->
+        <div class="chat-area" id="chatArea">
+          <div class="chat-inner" id="chatInner">
+            <div class="welcome" id="welcomeScreen">
+              <div class="welcome-icon">🩺</div>
+              <div class="welcome-title">MedPredict AI</div>
+              <div class="welcome-sub">
+                Describe your symptoms for AI-powered disease analysis
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <!-- Voice panel -->
-      <div class="panel" id="voicePanel">
-        <div class="panel-note">Click the button and speak your symptoms clearly</div>
-        <div style="text-align:center">
-          <button class="voice-start-btn" id="voiceBtn" onclick="startListening()">🎙️ Start Speaking</button>
-          <div class="voice-status" id="voiceStatus"></div>
-          <div class="voice-result" id="voiceResult"></div>
-          <button class="use-voice-btn" id="useVoiceBtn" onclick="useVoiceText()">✅ Use This Text</button>
+        <!-- ══ INPUT BAR ════════════════════════════════════ -->
+        <div class="input-section">
+          <div class="input-inner">
+            <div class="input-wrap">
+              <textarea
+                class="input-textarea"
+                id="mainInput"
+                placeholder="Describe your symptoms..."
+                rows="2"
+                onkeydown="handleKey(event)"
+              ></textarea>
+              <button
+                class="send-btn"
+                id="sendBtn"
+                onclick="handleSend()"
+                title="Send"
+              >
+                ➤
+              </button>
+            </div>
+
+            <div class="input-actions">
+              <button
+                class="action-btn"
+                id="voiceToggle"
+                onclick="togglePanel('voice')"
+              >
+                🎙️ Voice
+              </button>
+              <button
+                class="action-btn"
+                id="docToggle"
+                onclick="togglePanel('doc')"
+              >
+                📄 Document
+              </button>
+            </div>
+
+            <!-- Voice panel -->
+            <div class="panel" id="voicePanel">
+              <div class="panel-note">Speak your symptoms clearly</div>
+              <div style="text-align: center">
+                <button
+                  class="voice-start-btn"
+                  id="voiceBtn"
+                  onclick="startListening()"
+                >
+                  🎙️ Start Speaking
+                </button>
+                <div class="voice-status" id="voiceStatus"></div>
+                <div class="voice-result" id="voiceResult"></div>
+                <button
+                  class="use-voice-btn"
+                  id="useVoiceBtn"
+                  onclick="useVoiceText()"
+                >
+                  ✅ Use This Text
+                </button>
+              </div>
+            </div>
+
+            <!-- Doc panel -->
+            <div class="panel" id="docPanel">
+              <div
+                class="drop-area"
+                id="dropArea"
+                onclick="document.getElementById('fileInput').click()"
+                ondragover="dragOver(event)"
+                ondragleave="dragLeave(event)"
+                ondrop="dropFile(event)"
+              >
+                <div class="drop-icon">📄</div>
+                <div class="drop-text">Tap to upload or drag &amp; drop</div>
+                <div class="drop-sub">PDF, PNG, JPG, JPEG, BMP, TIFF</div>
+              </div>
+              <input
+                type="file"
+                class="file-input"
+                id="fileInput"
+                accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff"
+                onchange="fileChosen(event)"
+              />
+              <div
+                class="file-chosen"
+                id="fileChosenLabel"
+                style="display: none"
+              ></div>
+              <textarea
+                class="doc-extra"
+                id="docExtra"
+                placeholder="Add extra symptoms not in the document (optional)..."
+              ></textarea>
+              <button
+                class="analyze-btn"
+                id="analyzeBtn"
+                onclick="analyzeDocument()"
+              >
+                📄 Analyze Document
+              </button>
+            </div>
+
+            <div class="input-disclaimer">
+              AI analysis only — always consult a qualified physician for
+              medical advice.
+            </div>
+          </div>
         </div>
       </div>
-
-      <!-- Doc panel -->
-      <div class="panel" id="docPanel">
-        <div class="drop-area" id="dropArea"
-          onclick="document.getElementById('fileInput').click()"
-          ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
-          <div class="drop-icon">📄</div>
-          <div class="drop-text">Click to upload or drag &amp; drop</div>
-          <div class="drop-sub">PDF, PNG, JPG, JPEG, BMP, TIFF</div>
-        </div>
-        <input type="file" class="file-input" id="fileInput"
-          accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff" onchange="fileChosen(event)"/>
-        <div class="file-chosen" id="fileChosenLabel" style="display:none"></div>
-        <textarea class="doc-extra" id="docExtra"
-          placeholder="Add any extra symptoms not in the document (optional)..."></textarea>
-        <button class="analyze-btn" id="analyzeBtn" onclick="analyzeDocument()">📄 Analyze Document</button>
-      </div>
-
-      <div class="input-disclaimer">
-        AI-powered analysis. Always consult healthcare professionals for medical advice.
-      </div>
+      <!-- end .main -->
     </div>
-  </div>
-</div>
+    <!-- end .app -->
 
-<script>
-// ══════════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════════
-let sessions = [
-  { id:1, title:"Fever and headache",  date:"Today"     },
-  { id:2, title:"Chest pain analysis", date:"Yesterday" },
-  { id:3, title:"Skin rash",           date:"May 4"     },
-];
-let currentSessionId   = null;
-let chosenFile         = null;
-let voiceFinalText     = "";
-let lastPredictionData = null;
+    <script>
+      // ══════════════════════════════════════════════════════════
+      // STATE
+      // ══════════════════════════════════════════════════════════
+      let sessions = [
+        { id: 1, title: "Fever and headache", date: "Today" },
+        { id: 2, title: "Chest pain analysis", date: "Yesterday" },
+        { id: 3, title: "Skin rash", date: "May 4" },
+      ];
+      let currentSessionId = null;
+      let chosenFile = null;
+      let voiceFinalText = "";
+      let lastPredictionData = null;
 
-// ══════════════════════════════════════════════════════════════
-// SIDEBAR
-// ══════════════════════════════════════════════════════════════
-function renderSidebar() {
-  const list   = document.getElementById("sessionList");
-  const groups = {};
-  sessions.forEach(s => { (groups[s.date] = groups[s.date] || []).push(s); });
-  let html = "";
-  for (const [date, items] of Object.entries(groups)) {
-    html += `<div class="group-label">${date}</div>`;
-    items.forEach(s => {
-      const a = s.id === currentSessionId ? " active" : "";
-      html += `<div class="session-item${a}" onclick="loadSession(${s.id})">
+      // ══════════════════════════════════════════════════════════
+      // SIDEBAR  — mobile open/close
+      // ══════════════════════════════════════════════════════════
+      function toggleSidebar() {
+        const sb = document.getElementById("sidebar");
+        const ov = document.getElementById("sidebarOverlay");
+        const isOpen = sb.classList.contains("open");
+        sb.classList.toggle("open", !isOpen);
+        ov.classList.toggle("open", !isOpen);
+      }
+      function closeSidebar() {
+        document.getElementById("sidebar").classList.remove("open");
+        document.getElementById("sidebarOverlay").classList.remove("open");
+      }
+
+      function renderSidebar() {
+        const list = document.getElementById("sessionList");
+        const groups = {};
+        sessions.forEach((s) => {
+          (groups[s.date] = groups[s.date] || []).push(s);
+        });
+        let html = "";
+        for (const [date, items] of Object.entries(groups)) {
+          html += `<div class="group-label">${date}</div>`;
+          items.forEach((s) => {
+            const a = s.id === currentSessionId ? " active" : "";
+            html += `<div class="session-item${a}" onclick="loadSession(${s.id}); closeSidebar()">
         <span class="session-icon">💬</span>
         <span class="session-title">${esc(s.title)}</span>
       </div>`;
-    });
-  }
-  list.innerHTML = html;
-}
-function loadSession(id) { currentSessionId = id; renderSidebar(); }
-function newAnalysis() {
-  currentSessionId = null; lastPredictionData = null;
-  renderSidebar(); showWelcome();
-}
-function addSession(text) {
-  const title = text.length > 36 ? text.slice(0,36).trim()+"…" : text;
-  const ns    = { id: Date.now(), title, date: "Today" };
-  sessions.unshift(ns); currentSessionId = ns.id; renderSidebar();
-}
+          });
+        }
+        list.innerHTML = html;
+      }
 
-// ══════════════════════════════════════════════════════════════
-// CHAT
-// ══════════════════════════════════════════════════════════════
-function showWelcome() {
-  document.getElementById("chatInner").innerHTML = `
+      function loadSession(id) {
+        currentSessionId = id;
+        renderSidebar();
+      }
+
+      function newAnalysis() {
+        currentSessionId = null;
+        lastPredictionData = null;
+        closeSidebar();
+        renderSidebar();
+        showWelcome();
+      }
+
+      function addSession(text) {
+        const title = text.length > 36 ? text.slice(0, 36).trim() + "…" : text;
+        const ns = { id: Date.now(), title, date: "Today" };
+        sessions.unshift(ns);
+        currentSessionId = ns.id;
+        renderSidebar();
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // CHAT HELPERS
+      // ══════════════════════════════════════════════════════════
+      function showWelcome() {
+        document.getElementById("chatInner").innerHTML = `
     <div class="welcome" id="welcomeScreen">
       <div class="welcome-icon">🩺</div>
       <div class="welcome-title">MedPredict AI</div>
-      <div class="welcome-sub">Enter your symptoms for AI-powered analysis</div>
+      <div class="welcome-sub">Describe your symptoms for AI-powered disease analysis</div>
     </div>`;
-}
-function hideWelcome() { const w=document.getElementById("welcomeScreen"); if(w) w.remove(); }
+      }
+      function hideWelcome() {
+        const w = document.getElementById("welcomeScreen");
+        if (w) w.remove();
+      }
 
-function appendUserBubble(text, fileName) {
-  hideWelcome();
-  const inner = document.getElementById("chatInner");
-  const div   = document.createElement("div");
-  div.className = "msg-user";
-  const fn = fileName ? ` <span style="font-size:.78rem;color:var(--sub)">(+ ${esc(fileName)})</span>` : "";
-  div.innerHTML = `<div class="msg-user-bubble">${esc(text)}${fn}</div><div class="msg-avatar">U</div>`;
-  inner.appendChild(div);
-  scrollBottom();
-}
+      function appendUserBubble(text, fileName) {
+        hideWelcome();
+        const inner = document.getElementById("chatInner");
+        const div = document.createElement("div");
+        div.className = "msg-user";
+        const fn = fileName
+          ? ` <span style="font-size:.75rem;color:var(--sub)">(+ ${esc(fileName)})</span>`
+          : "";
+        div.innerHTML = `
+    <div class="msg-user-bubble">${esc(text)}${fn}</div>
+    <div class="msg-avatar">U</div>`;
+        inner.appendChild(div);
+        scrollBottom();
+      }
 
-function appendTyping() {
-  const inner = document.getElementById("chatInner");
-  const div   = document.createElement("div");
-  div.className = "msg-ai"; div.id = "typingIndicator";
-  div.innerHTML = `<div class="msg-ai-icon">🩺</div>
-    <div class="typing-wrap"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
-  inner.appendChild(div); scrollBottom();
-}
-function removeTyping() { const t=document.getElementById("typingIndicator"); if(t) t.remove(); }
-
-function appendResultCard(data) {
-  const inner = document.getElementById("chatInner");
-  const wrap  = document.createElement("div");
-  wrap.className = "msg-ai";
-  const bid = "b_" + Date.now();
-  wrap.innerHTML = `<div class="msg-ai-icon">🩺</div><div class="msg-ai-body" id="${bid}"></div>`;
-  inner.appendChild(wrap);
-
-  const body = document.getElementById(bid);
-
-  // Error: not enough symptoms
-  if (!data || data.error === 'not_enough_symptoms') {
-    const cnt = data && data.symptoms_found ? data.symptoms_found.length : 0;
-    body.innerHTML = `<div class="error-msg">⚠️ I couldn't identify enough matching symptoms.
-      ${cnt > 0 ? `Found <strong>${cnt}</strong> symptom(s) but need at least 2.` : ""}
-      Please use specific terms like <em>headache</em>, <em>fever</em>, <em>nausea</em>, <em>fatigue</em>.
+      function appendTyping() {
+        const inner = document.getElementById("chatInner");
+        const div = document.createElement("div");
+        div.className = "msg-ai";
+        div.id = "typingIndicator";
+        div.innerHTML = `
+    <div class="msg-ai-icon">🩺</div>
+    <div class="typing-wrap">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>`;
-    scrollBottom(); return;
-  }
+        inner.appendChild(div);
+        scrollBottom();
+      }
+      function removeTyping() {
+        const t = document.getElementById("typingIndicator");
+        if (t) t.remove();
+      }
 
-  lastPredictionData = data;
-  const { rf, nn, sev, top, desc, precs } = data;
-  const sb  = s => `<span class="sev-badge sev-${s||'Unknown'}">${s||'Unknown'}</span>`;
-  const ico = sev==="High" ? "🔴" : sev==="Medium" ? "🔶" : "🟢";
+      // ══════════════════════════════════════════════════════════
+      // RESULT CARD  — clean 3-disease view, no RF/NN labels
+      // ══════════════════════════════════════════════════════════
+      function buildTop3(rf, nn) {
+        /*
+    Merge RF top-3 and NN top-3, pick best 3 unique diseases.
+    Score = RF_conf * 0.6 + NN_conf * 0.4  (RF weighted higher as primary model).
+    Each disease appears once (highest combined score).
+  */
+        const scores = {};
+        rf.forEach(([name, conf]) => {
+          scores[name] = (scores[name] || 0) + conf * 0.6;
+        });
+        nn.forEach(([name, conf]) => {
+          scores[name] = (scores[name] || 0) + conf * 0.4;
+        });
 
-  body.innerHTML = `
+        // Sort by combined score, take top 3
+        const sorted = Object.entries(scores)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3);
+
+        // Normalise so top shown confidence is the RF top confidence (keeps real model numbers)
+        const rfTop = rf[0][1]; // primary model top confidence
+        const rawTop = sorted[0][1];
+        const scale = rawTop > 0 ? rfTop / rawTop : 1;
+
+        return sorted.map(([name, rawScore], i) => ({
+          name,
+          conf: Math.min(Math.round(rawScore * scale * 10) / 10, 99.9),
+          rank: i,
+        }));
+      }
+
+      function appendResultCard(data) {
+        const inner = document.getElementById("chatInner");
+        const wrap = document.createElement("div");
+        wrap.className = "msg-ai";
+        const bid = "b_" + Date.now();
+        wrap.innerHTML = `
+    <div class="msg-ai-icon">🩺</div>
+    <div class="msg-ai-body" id="${bid}"></div>`;
+        inner.appendChild(wrap);
+
+        const body = document.getElementById(bid);
+
+        // Error state
+        if (!data || data.error === "not_enough_symptoms") {
+          const cnt =
+            data && data.symptoms_found ? data.symptoms_found.length : 0;
+          body.innerHTML = `<div class="error-msg">
+      ⚠️ Couldn't identify enough symptoms.
+      ${cnt > 0 ? `Found <strong>${cnt}</strong> symptom(s) — need at least 2.` : ""}
+      Try specific terms like <em>headache</em>, <em>fever</em>, <em>nausea</em>, <em>fatigue</em>, <em>cough</em>.
+    </div>`;
+          scrollBottom();
+          return;
+        }
+
+        lastPredictionData = data;
+        const { rf, nn, sev, top, desc, precs } = data;
+
+        // Build merged top-3
+        const top3 = buildTop3(rf, nn);
+
+        const sevIcon = sev === "High" ? "🔴" : sev === "Medium" ? "🔶" : "🟢";
+        const sb = (s) =>
+          `<span class="sev-badge sev-${s || "Unknown"}">${s || "Unknown"}</span>`;
+
+        const rankLabels = ["Top", "2nd", "3rd"];
+        const rankClasses = ["top-card", "", ""];
+        const badgeClass = ["badge-top", "badge-rank", "badge-rank"];
+        const confClass = ["conf-top", "conf-2nd", "conf-3rd"];
+        const fillClass = ["fill-top", "fill-2nd", "fill-3rd"];
+        const maxConf = top3[0]?.conf || 100;
+
+        const cardsHtml = top3
+          .map(
+            (d, i) => `
+    <div class="pred-card ${rankClasses[i]}">
+      <div class="pred-left">
+        <div class="pred-name">
+          ${esc(d.name)}
+          <span class="${badgeClass[i]}">${rankLabels[i]}</span>
+        </div>
+        <div class="pred-meta">${sb(i === 0 ? sev : i === 1 ? "Medium" : "Low")}</div>
+      </div>
+      <div class="conf-wrap">
+        <div class="conf-num ${confClass[i]}">${d.conf}%</div>
+        <div class="conf-bar-track">
+          <div class="conf-bar-fill ${fillClass[i]}"
+               style="width:${Math.round((d.conf / maxConf) * 100)}%"></div>
+        </div>
+        <div class="conf-sub">confidence</div>
+      </div>
+    </div>`,
+          )
+          .join("");
+
+        body.innerHTML = `
     <div class="preds-header">
       <div class="preds-title">Disease Predictions</div>
       <button class="export-btn" onclick="exportPDF()">📄 Export Report</button>
     </div>
-
-    <!-- RF #1 — blue border -->
-    <div class="pred-card top-card">
-      <div class="pred-left">
-        <div class="pred-name">${esc(rf[0][0])} <span class="badge-top">Top</span></div>
-        <div class="pred-meta"><span class="model-tag">Random Forest</span>&nbsp;·&nbsp;${sb(sev)}</div>
-      </div>
-      <div class="pred-right">
-        <div class="pred-conf conf-rf">${rf[0][1]}%</div>
-        <div class="pred-conf-sub">confidence</div>
-      </div>
-    </div>
-
-    <!-- NN #1 -->
-    <div class="pred-card">
-      <div class="pred-left">
-        <div class="pred-name">${esc(nn[0][0])}</div>
-        <div class="pred-meta"><span class="model-tag">Neural Network</span>&nbsp;·&nbsp;${sb(sev)}</div>
-      </div>
-      <div class="pred-right">
-        <div class="pred-conf conf-nn">${nn[0][1]}%</div>
-        <div class="pred-conf-sub">confidence</div>
-      </div>
-    </div>
-
-    <!-- RF #2 -->
-    ${rf[1] ? `<div class="pred-card">
-      <div class="pred-left">
-        <div class="pred-name">${esc(rf[1][0])}</div>
-        <div class="pred-meta"><span class="model-tag">Random Forest</span>&nbsp;·&nbsp;${sb("Medium")}</div>
-      </div>
-      <div class="pred-right">
-        <div class="pred-conf conf-rf">${rf[1][1]}%</div>
-        <div class="pred-conf-sub">confidence</div>
-      </div>
-    </div>` : ""}
-
-    <!-- NN #2 -->
-    ${nn[1] ? `<div class="pred-card">
-      <div class="pred-left">
-        <div class="pred-name">${esc(nn[1][0])}</div>
-        <div class="pred-meta"><span class="model-tag">Neural Network</span>&nbsp;·&nbsp;${sb("Low")}</div>
-      </div>
-      <div class="pred-right">
-        <div class="pred-conf conf-nn">${nn[1][1]}%</div>
-        <div class="pred-conf-sub">confidence</div>
-      </div>
-    </div>` : ""}
-
-    <!-- RF #3 -->
-    ${rf[2] ? `<div class="pred-card">
-      <div class="pred-left">
-        <div class="pred-name">${esc(rf[2][0])}</div>
-        <div class="pred-meta"><span class="model-tag">Random Forest</span>&nbsp;·&nbsp;${sb("Medium")}</div>
-      </div>
-      <div class="pred-right">
-        <div class="pred-conf conf-rf">${rf[2][1]}%</div>
-        <div class="pred-conf-sub">confidence</div>
-      </div>
-    </div>` : ""}
-
-    <!-- Detailed Analysis -->
+    ${cardsHtml}
     <div class="sec-label">Detailed Analysis</div>
     <div class="detail-card">
       <div class="detail-header">
-        <div class="detail-icon-box">${ico}</div>
+        <div class="detail-icon-box">${sevIcon}</div>
         <div>
           <div class="detail-name">${esc(top)}</div>
           <div class="detail-sev">Severity: ${sev}</div>
@@ -569,194 +1403,259 @@ function appendResultCard(data) {
       <div class="detail-section">Description</div>
       <div class="detail-desc">${esc(desc)}</div>
       <div class="detail-section">Recommended Precautions</div>
-      ${precs.map(p=>`<div class="prec-item">
-        <span class="prec-icon">⊙</span>
-        <span>${esc(p.charAt(0).toUpperCase()+p.slice(1))}</span>
-      </div>`).join("")}
+      ${precs
+        .map(
+          (p) => `
+        <div class="prec-item">
+          <span class="prec-icon">⊙</span>
+          <span>${esc(p.charAt(0).toUpperCase() + p.slice(1))}</span>
+        </div>`,
+        )
+        .join("")}
     </div>`;
 
-  scrollBottom();
-}
+        scrollBottom();
+      }
 
-// ══════════════════════════════════════════════════════════════
-// SEND  →  POST /predict
-// ══════════════════════════════════════════════════════════════
-async function handleSend() {
-  const input = document.getElementById("mainInput");
-  const text  = input.value.trim();
-  if (!text) return;
+      // ══════════════════════════════════════════════════════════
+      // SEND  →  POST /predict
+      // ══════════════════════════════════════════════════════════
+      async function handleSend() {
+        const input = document.getElementById("mainInput");
+        const text = input.value.trim();
+        if (!text) return;
 
-  input.value = "";
-  setDisabled(true);
-  appendUserBubble(text, null);
-  appendTyping();
-  addSession(text);
+        input.value = "";
+        setDisabled(true);
+        appendUserBubble(text, null);
+        appendTyping();
+        addSession(text);
 
-  try {
-    const res  = await fetch('/predict', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text })
-    });
-    const data = await res.json();
-    removeTyping();
-    appendResultCard(data);
-  } catch(e) {
-    removeTyping();
-    appendResultCard(null);
-  }
-  setDisabled(false);
-  document.getElementById("mainInput").focus();
-}
+        try {
+          const res = await fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+          const data = await res.json();
+          removeTyping();
+          appendResultCard(data);
+        } catch (e) {
+          removeTyping();
+          appendResultCard(null);
+        }
 
-function handleKey(e) {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
-}
+        setDisabled(false);
+        document.getElementById("mainInput").focus();
+      }
 
-// ══════════════════════════════════════════════════════════════
-// DOCUMENT  →  POST /predict-doc
-// ══════════════════════════════════════════════════════════════
-async function analyzeDocument() {
-  if (!chosenFile) { alert("Please choose a file first."); return; }
-  const extra = document.getElementById("docExtra").value.trim();
-  const displayText = `[Document: ${chosenFile.name}]${extra ? " "+extra : ""}`;
+      function handleKey(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      }
 
-  togglePanel("doc");
-  setDisabled(true);
-  appendUserBubble(displayText, chosenFile.name);
-  appendTyping();
-  addSession(chosenFile.name);
+      // ══════════════════════════════════════════════════════════
+      // DOCUMENT UPLOAD  →  POST /predict-doc
+      // ══════════════════════════════════════════════════════════
+      async function analyzeDocument() {
+        if (!chosenFile) {
+          alert("Please choose a file first.");
+          return;
+        }
+        const extra = document.getElementById("docExtra").value.trim();
+        const displayText = `[Document: ${chosenFile.name}]${extra ? " " + extra : ""}`;
 
-  const fd = new FormData();
-  fd.append("file",  chosenFile);
-  fd.append("extra", extra);
+        togglePanel("doc");
+        setDisabled(true);
+        appendUserBubble(displayText, chosenFile.name);
+        appendTyping();
+        addSession(chosenFile.name);
 
-  try {
-    const res  = await fetch('/predict-doc', { method: 'POST', body: fd });
-    const data = await res.json();
-    removeTyping();
-    appendResultCard(data);
-  } catch(e) {
-    removeTyping();
-    appendResultCard(null);
-  }
+        const fd = new FormData();
+        fd.append("file", chosenFile);
+        fd.append("extra", extra);
 
-  setDisabled(false);
-  chosenFile = null;
-  document.getElementById("fileChosenLabel").style.display = "none";
-  document.getElementById("fileInput").value = "";
-}
+        try {
+          const res = await fetch("/predict-doc", { method: "POST", body: fd });
+          const data = await res.json();
+          removeTyping();
+          appendResultCard(data);
+        } catch (e) {
+          removeTyping();
+          appendResultCard(null);
+        }
 
-// ══════════════════════════════════════════════════════════════
-// PDF EXPORT  →  POST /export-pdf
-// ══════════════════════════════════════════════════════════════
-async function exportPDF() {
-  if (!lastPredictionData) return;
-  const d = lastPredictionData;
-  try {
-    const res = await fetch('/export-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        symptoms: d.symptoms, rf: d.rf, nn: d.nn,
-        sev: d.sev, score: d.score, desc: d.desc,
-        precs: d.precs, top: d.top
-      })
-    });
-    if (!res.ok) { alert("PDF generation failed."); return; }
-    const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href = url;
-    a.download = `MedPredict_${(d.top||"Report").replace(/\s+/g,"_")}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
-  } catch(e) { alert("Export error: " + e.message); }
-}
+        setDisabled(false);
+        chosenFile = null;
+        document.getElementById("fileChosenLabel").style.display = "none";
+        document.getElementById("fileInput").value = "";
+      }
 
-// ══════════════════════════════════════════════════════════════
-// VOICE
-// ══════════════════════════════════════════════════════════════
-let recognition;
-function startListening() {
-  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-    document.getElementById("voiceStatus").textContent = "❌ Not supported. Use Chrome."; return;
-  }
-  recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  recognition.lang = "en-US"; recognition.interimResults = false;
-  document.getElementById("voiceBtn").textContent = "🔴 Listening...";
-  document.getElementById("voiceStatus").textContent = "Speak now...";
-  recognition.onresult = e => {
-    voiceFinalText = e.results[0][0].transcript;
-    document.getElementById("voiceResult").textContent = "📝 " + voiceFinalText;
-    document.getElementById("voiceResult").style.display = "block";
-    document.getElementById("useVoiceBtn").style.display = "inline-block";
-    document.getElementById("voiceBtn").textContent = "🎙️ Speak Again";
-    document.getElementById("voiceStatus").textContent = "✅ Voice captured!";
-  };
-  recognition.onerror = e => {
-    document.getElementById("voiceStatus").textContent = "❌ Error: " + e.error;
-    document.getElementById("voiceBtn").textContent = "🎙️ Start Speaking";
-  };
-  recognition.onend = () => {
-    if (document.getElementById("voiceBtn").textContent === "🔴 Listening...")
-      document.getElementById("voiceBtn").textContent = "🎙️ Start Speaking";
-  };
-  recognition.start();
-}
-function useVoiceText() {
-  document.getElementById("mainInput").value = voiceFinalText;
-  document.getElementById("voiceStatus").textContent = "✅ Text copied to input!";
-  togglePanel("voice");
-}
+      // ══════════════════════════════════════════════════════════
+      // PDF EXPORT  →  POST /export-pdf
+      // ══════════════════════════════════════════════════════════
+      async function exportPDF() {
+        if (!lastPredictionData) return;
+        const d = lastPredictionData;
+        try {
+          const res = await fetch("/export-pdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              symptoms: d.symptoms,
+              rf: d.rf,
+              nn: d.nn,
+              sev: d.sev,
+              score: d.score,
+              desc: d.desc,
+              precs: d.precs,
+              top: d.top,
+            }),
+          });
+          if (!res.ok) {
+            alert("PDF generation failed.");
+            return;
+          }
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `MedPredict_${(d.top || "Report").replace(/\s+/g, "_")}.pdf`;
+          a.click();
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          alert("Export error: " + e.message);
+        }
+      }
 
-// ══════════════════════════════════════════════════════════════
-// FILE DROP
-// ══════════════════════════════════════════════════════════════
-function fileChosen(e) { setFile(e.target.files[0]); }
-function dragOver(e)   { e.preventDefault(); document.getElementById("dropArea").classList.add("over"); }
-function dragLeave()   { document.getElementById("dropArea").classList.remove("over"); }
-function dropFile(e)   { e.preventDefault(); document.getElementById("dropArea").classList.remove("over"); setFile(e.dataTransfer.files[0]); }
-function setFile(f) {
-  if (!f) return; chosenFile = f;
-  const lbl = document.getElementById("fileChosenLabel");
-  lbl.textContent = "📎 " + f.name; lbl.style.display = "block";
-}
+      // ══════════════════════════════════════════════════════════
+      // VOICE
+      // ══════════════════════════════════════════════════════════
+      let recognition;
+      function startListening() {
+        if (
+          !("webkitSpeechRecognition" in window) &&
+          !("SpeechRecognition" in window)
+        ) {
+          document.getElementById("voiceStatus").textContent =
+            "❌ Not supported. Use Chrome.";
+          return;
+        }
+        recognition = new (
+          window.SpeechRecognition || window.webkitSpeechRecognition
+        )();
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        document.getElementById("voiceBtn").textContent = "🔴 Listening...";
+        document.getElementById("voiceStatus").textContent = "Speak now...";
+        recognition.onresult = (e) => {
+          voiceFinalText = e.results[0][0].transcript;
+          document.getElementById("voiceResult").textContent =
+            "📝 " + voiceFinalText;
+          document.getElementById("voiceResult").style.display = "block";
+          document.getElementById("useVoiceBtn").style.display = "inline-block";
+          document.getElementById("voiceBtn").textContent = "🎙️ Speak Again";
+          document.getElementById("voiceStatus").textContent =
+            "✅ Voice captured!";
+        };
+        recognition.onerror = (e) => {
+          document.getElementById("voiceStatus").textContent =
+            "❌ Error: " + e.error;
+          document.getElementById("voiceBtn").textContent = "🎙️ Start Speaking";
+        };
+        recognition.onend = () => {
+          if (
+            document.getElementById("voiceBtn").textContent ===
+            "🔴 Listening..."
+          )
+            document.getElementById("voiceBtn").textContent =
+              "🎙️ Start Speaking";
+        };
+        recognition.start();
+      }
+      function useVoiceText() {
+        document.getElementById("mainInput").value = voiceFinalText;
+        document.getElementById("voiceStatus").textContent = "✅ Text copied!";
+        togglePanel("voice");
+      }
 
-// ══════════════════════════════════════════════════════════════
-// PANELS
-// ══════════════════════════════════════════════════════════════
-function togglePanel(name) {
-  const vp=document.getElementById("voicePanel"), dp=document.getElementById("docPanel");
-  const vt=document.getElementById("voiceToggle"), dt=document.getElementById("docToggle");
-  if (name==="voice") {
-    const o=vp.classList.contains("open");
-    vp.classList.toggle("open",!o); dp.classList.remove("open");
-    vt.classList.toggle("active",!o); dt.classList.remove("active");
-  } else {
-    const o=dp.classList.contains("open");
-    dp.classList.toggle("open",!o); vp.classList.remove("open");
-    dt.classList.toggle("active",!o); vt.classList.remove("active");
-  }
-}
+      // ══════════════════════════════════════════════════════════
+      // FILE
+      // ══════════════════════════════════════════════════════════
+      function fileChosen(e) {
+        setFile(e.target.files[0]);
+      }
+      function dragOver(e) {
+        e.preventDefault();
+        document.getElementById("dropArea").classList.add("over");
+      }
+      function dragLeave() {
+        document.getElementById("dropArea").classList.remove("over");
+      }
+      function dropFile(e) {
+        e.preventDefault();
+        document.getElementById("dropArea").classList.remove("over");
+        setFile(e.dataTransfer.files[0]);
+      }
+      function setFile(f) {
+        if (!f) return;
+        chosenFile = f;
+        const lbl = document.getElementById("fileChosenLabel");
+        lbl.textContent = "📎 " + f.name;
+        lbl.style.display = "block";
+      }
 
-// ══════════════════════════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════════════════════════
-function setDisabled(d) {
-  document.getElementById("sendBtn").disabled   = d;
-  document.getElementById("mainInput").disabled = d;
-}
-function scrollBottom() {
-  const ca = document.getElementById("chatArea");
-  setTimeout(() => ca.scrollTop = ca.scrollHeight, 60);
-}
-function esc(t) {
-  return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
+      // ══════════════════════════════════════════════════════════
+      // PANELS
+      // ══════════════════════════════════════════════════════════
+      function togglePanel(name) {
+        const vp = document.getElementById("voicePanel");
+        const dp = document.getElementById("docPanel");
+        const vt = document.getElementById("voiceToggle");
+        const dt = document.getElementById("docToggle");
+        if (name === "voice") {
+          const o = vp.classList.contains("open");
+          vp.classList.toggle("open", !o);
+          dp.classList.remove("open");
+          vt.classList.toggle("active", !o);
+          dt.classList.remove("active");
+        } else {
+          const o = dp.classList.contains("open");
+          dp.classList.toggle("open", !o);
+          vp.classList.remove("open");
+          dt.classList.toggle("active", !o);
+          vt.classList.remove("active");
+        }
+      }
 
-// INIT
-renderSidebar();
-</script>
-</body>
+      // ══════════════════════════════════════════════════════════
+      // UTILS
+      // ══════════════════════════════════════════════════════════
+      function setDisabled(d) {
+        document.getElementById("sendBtn").disabled = d;
+        document.getElementById("mainInput").disabled = d;
+      }
+      function scrollBottom() {
+        const ca = document.getElementById("chatArea");
+        requestAnimationFrame(() => (ca.scrollTop = ca.scrollHeight));
+      }
+      function esc(t) {
+        return String(t)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // Close sidebar on ESC key (desktop)
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeSidebar();
+      });
+
+      // INIT
+      renderSidebar();
+    </script>
+  </body>
 </html>
