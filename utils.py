@@ -663,107 +663,368 @@ def get_severity_score(selected_symptoms, severity_df):
 # ══════════════════════════════════════════════════════════════
 # PDF REPORT
 # ══════════════════════════════════════════════════════════════
-def generate_pdf_report(selected_symptoms, top3, nn_top3, all_model_results,
-                         description, precautions, severity_score, risk_level):
-    """Generates a PDF report and returns it as bytes."""
+def generate_pdf_report(
+    selected_symptoms,
+    top3,
+    description,
+    precautions,
+    severity_score,
+    risk_level
+):
+    """Generate professional AI healthcare assessment PDF."""
+
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Paragraph,
+        Spacer,
+        Table,
+        TableStyle,
+        HRFlowable
+    )
     from reportlab.lib.units import cm
 
+    # =========================
+    # PDF DOCUMENT SETUP
+    # =========================
     buffer = io.BytesIO()
-    doc    = SimpleDocTemplate(buffer, pagesize=A4,
-                               rightMargin=2*cm, leftMargin=2*cm,
-                               topMargin=2*cm, bottomMargin=2*cm)
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=2 * cm,
+        leftMargin=2 * cm,
+        topMargin=1.8 * cm,
+        bottomMargin=1.8 * cm
+    )
+
     styles = getSampleStyleSheet()
-    story  = []
+    story = []
 
-    title_style = ParagraphStyle('title', fontSize=20, fontName='Helvetica-Bold',
-                                  textColor=colors.HexColor('#0d6efd'), spaceAfter=5)
-    sub_style   = ParagraphStyle('sub', fontSize=10, textColor=colors.grey, spaceAfter=15)
-    heading     = ParagraphStyle('h2', fontSize=13, fontName='Helvetica-Bold', spaceAfter=6)
-    normal      = styles['Normal']
+    # =========================
+    # COLORS
+    # =========================
+    PRIMARY = colors.HexColor('#1E3A5F')
+    LIGHT_BG = colors.HexColor('#F7FAFC')
+    BORDER = colors.HexColor('#D6E0EA')
+    TEXT_GRAY = colors.HexColor('#6C757D')
+    SUCCESS = colors.HexColor('#1FA67A')
 
-    story.append(Paragraph("MedPredict AI — Disease Prediction Report", title_style))
-    story.append(Paragraph("Riphah International University | AI Course Project | 6th Semester BSCS", sub_style))
-    story.append(Spacer(1, 0.3*cm))
+    # =========================
+    # STYLES
+    # =========================
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=22,
+        leading=28,
+        textColor=PRIMARY,
+        spaceAfter=5
+    )
 
-    story.append(Paragraph("Selected Symptoms", heading))
-    story.append(Paragraph(", ".join(selected_symptoms), normal))
-    story.append(Spacer(1, 0.4*cm))
+    subtitle_style = ParagraphStyle(
+        'SubtitleStyle',
+        parent=styles['Normal'],
+        fontSize=10,
+        leading=14,
+        textColor=TEXT_GRAY,
+        spaceAfter=14
+    )
 
-    story.append(Paragraph("Symptom Severity", heading))
-    story.append(Paragraph(f"Risk Level: {risk_level}  |  Severity Score: {severity_score} / 7", normal))
-    story.append(Spacer(1, 0.4*cm))
+    heading_style = ParagraphStyle(
+        'HeadingStyle',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=13,
+        leading=18,
+        textColor=PRIMARY,
+        spaceBefore=10,
+        spaceAfter=8
+    )
 
-    story.append(Paragraph("Top 3 Predicted Diseases — Random Forest", heading))
-    pred_data = [['Rank', 'Disease', 'Confidence %']]
-    for rank, (disease, conf) in zip(['1st', '2nd', '3rd'], top3):
-        pred_data.append([rank, disease, f"{conf}%"])
-    pred_table = Table(pred_data, colWidths=[3*cm, 10*cm, 3*cm])
-    pred_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0d6efd')),
-        ('TEXTCOLOR',  (0,0), (-1,0), colors.white),
-        ('FONTNAME',   (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE',   (0,0), (-1,-1), 10),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f0f4f8')]),
-        ('GRID',       (0,0), (-1,-1), 0.5, colors.grey),
-        ('PADDING',    (0,0), (-1,-1), 8),
+    normal_style = ParagraphStyle(
+        'NormalStyle',
+        parent=styles['BodyText'],
+        fontSize=10,
+        leading=16,
+        textColor=colors.black
+    )
+
+    info_style = ParagraphStyle(
+        'InfoStyle',
+        parent=styles['BodyText'],
+        fontSize=10,
+        leading=18,
+        textColor=colors.black
+    )
+
+    disclaimer_style = ParagraphStyle(
+        'DisclaimerStyle',
+        parent=styles['BodyText'],
+        fontSize=8,
+        leading=12,
+        textColor=TEXT_GRAY
+    )
+
+    # =========================
+    # TITLE SECTION
+    # =========================
+    story.append(
+        Paragraph(
+            "AI-Powered Health Assessment Report",
+            title_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            "Advanced Symptom Analysis & Clinical Risk Prediction",
+            subtitle_style
+        )
+    )
+
+    story.append(
+        HRFlowable(
+            width="100%",
+            thickness=1,
+            color=BORDER
+        )
+    )
+
+    story.append(Spacer(1, 0.4 * cm))
+
+    # =========================
+    # SYMPTOM SUMMARY
+    # =========================
+    story.append(
+        Paragraph(
+            "Patient Symptom Summary",
+            heading_style
+        )
+    )
+
+    formatted_symptoms = " • ".join(
+        sym.replace("_", " ").title()
+        for sym in selected_symptoms
+    )
+
+    story.append(
+        Paragraph(
+            formatted_symptoms,
+            normal_style
+        )
+    )
+
+    story.append(Spacer(1, 0.35 * cm))
+
+    # =========================
+    # RISK ASSESSMENT
+    # =========================
+    story.append(
+        Paragraph(
+            "Overall Health Risk Assessment",
+            heading_style
+        )
+    )
+
+    risk_text = f"""
+    <b>Risk Level:</b> {risk_level}<br/>
+    <b>Severity Score:</b> {severity_score} / 7<br/>
+    <b>Clinical Observation:</b> The entered symptoms may indicate conditions requiring medical evaluation and professional consultation.
+    """
+
+    story.append(
+        Paragraph(
+            risk_text,
+            info_style
+        )
+    )
+
+    story.append(Spacer(1, 0.4 * cm))
+
+    # =========================
+    # TOP PREDICTIONS TABLE
+    # =========================
+    story.append(
+        Paragraph(
+            "Top Predicted Conditions",
+            heading_style
+        )
+    )
+
+    prediction_data = [
+        ['Priority', 'Predicted Condition', 'AI Confidence']
+    ]
+
+    priorities = ['1st', '2nd', '3rd']
+
+    for rank, (disease, confidence) in zip(priorities, top3):
+        prediction_data.append([
+            rank,
+            disease,
+            f"{confidence}%"
+        ])
+
+    prediction_table = Table(
+        prediction_data,
+        colWidths=[3 * cm, 9 * cm, 4 * cm]
+    )
+
+    prediction_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), PRIMARY),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+
+        ('BACKGROUND', (0, 1), (-1, -1), LIGHT_BG),
+
+        ('GRID', (0, 0), (-1, -1), 0.6, BORDER),
+
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
     ]))
-    story.append(pred_table)
-    story.append(Spacer(1, 0.4*cm))
 
-    story.append(Paragraph("Top 3 Predicted Diseases — Neural Network", heading))
-    nn_data = [['Rank', 'Disease', 'Confidence %']]
-    for rank, (disease, conf) in zip(['1st', '2nd', '3rd'], nn_top3):
-        nn_data.append([rank, disease, f"{conf}%"])
-    nn_table = Table(nn_data, colWidths=[3*cm, 10*cm, 3*cm])
-    nn_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#6f42c1')),
-        ('TEXTCOLOR',  (0,0), (-1,0), colors.white),
-        ('FONTNAME',   (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE',   (0,0), (-1,-1), 10),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f5f0ff')]),
-        ('GRID',       (0,0), (-1,-1), 0.5, colors.grey),
-        ('PADDING',    (0,0), (-1,-1), 8),
-    ]))
-    story.append(nn_table)
-    story.append(Spacer(1, 0.4*cm))
+    story.append(prediction_table)
 
-    story.append(Paragraph("RF vs Neural Network Comparison", heading))
-    model_data = [['Model', 'Predicted Disease', 'Confidence %']]
-    for mname, res in all_model_results.items():
-        model_data.append([mname, res['disease'], f"{res['confidence']}%"])
-    model_table = Table(model_data, colWidths=[4*cm, 9*cm, 3*cm])
-    model_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#495057')),
-        ('TEXTCOLOR',  (0,0), (-1,0), colors.white),
-        ('FONTNAME',   (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTSIZE',   (0,0), (-1,-1), 10),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor('#f8f9fa')]),
-        ('GRID',       (0,0), (-1,-1), 0.5, colors.grey),
-        ('PADDING',    (0,0), (-1,-1), 8),
-    ]))
-    story.append(model_table)
-    story.append(Spacer(1, 0.4*cm))
+    story.append(Spacer(1, 0.5 * cm))
 
-    story.append(Paragraph(f"About: {top3[0][0]}", heading))
-    story.append(Paragraph(description, normal))
-    story.append(Spacer(1, 0.4*cm))
+    # =========================
+    # CONDITION ANALYSIS
+    # =========================
+    top_condition = top3[0][0]
+    top_confidence = top3[0][1]
 
-    story.append(Paragraph("Recommended Precautions", heading))
-    for i, p in enumerate(precautions, 1):
-        story.append(Paragraph(f"{i}. {p.capitalize()}", normal))
-    story.append(Spacer(1, 0.4*cm))
+    story.append(
+        Paragraph(
+            "Detailed Condition Analysis",
+            heading_style
+        )
+    )
 
-    disc_style = ParagraphStyle('disc', fontSize=8, textColor=colors.red)
-    story.append(Paragraph(
-        "DISCLAIMER: This report is generated by an AI system for educational purposes only. "
-        "It does not replace professional medical advice. Please consult a qualified physician.",
-        disc_style
-    ))
+    story.append(
+        Paragraph(
+            f"<b>{top_condition}</b>",
+            styles['Heading3']
+        )
+    )
 
+    story.append(Spacer(1, 0.1 * cm))
+
+    story.append(
+        Paragraph(
+            f"<b>Estimated Risk:</b> {top_confidence}% AI Confidence",
+            info_style
+        )
+    )
+
+    story.append(Spacer(1, 0.2 * cm))
+
+    story.append(
+        Paragraph(
+            "<b>Condition Overview</b>",
+            normal_style
+        )
+    )
+
+    story.append(
+        Paragraph(
+            description,
+            normal_style
+        )
+    )
+
+    story.append(Spacer(1, 0.4 * cm))
+
+    # =========================
+    # PRECAUTIONS
+    # =========================
+    story.append(
+        Paragraph(
+            "Recommended Immediate Actions",
+            heading_style
+        )
+    )
+
+    for i, precaution in enumerate(precautions, 1):
+        story.append(
+            Paragraph(
+                f"{i}. {precaution.capitalize()}",
+                normal_style
+            )
+        )
+
+    story.append(Spacer(1, 0.5 * cm))
+
+    # =========================
+    # HEALTH RECOMMENDATIONS
+    # =========================
+    story.append(
+        Paragraph(
+            "General Health Recommendations",
+            heading_style
+        )
+    )
+
+    recommendations = [
+        "Maintain proper hydration and rest",
+        "Monitor symptoms regularly",
+        "Avoid unnecessary physical stress",
+        "Seek professional medical consultation if symptoms worsen",
+        "Follow a balanced and healthy lifestyle"
+    ]
+
+    for rec in recommendations:
+        story.append(
+            Paragraph(
+                f"• {rec}",
+                normal_style
+            )
+        )
+
+    story.append(Spacer(1, 0.6 * cm))
+
+    # =========================
+    # DISCLAIMER
+    # =========================
+    story.append(
+        HRFlowable(
+            width="100%",
+            thickness=1,
+            color=BORDER
+        )
+    )
+
+    story.append(Spacer(1, 0.25 * cm))
+
+    disclaimer = """
+    <b>Important Disclaimer:</b>
+    This AI-generated assessment is intended for educational and research purposes only.
+    It is not a substitute for professional medical diagnosis, treatment, or emergency care.
+    Please consult a licensed healthcare professional for proper medical advice and treatment.
+    """
+
+    story.append(
+        Paragraph(
+            disclaimer,
+            disclaimer_style
+        )
+    )
+
+    # =========================
+    # BUILD PDF
+    # =========================
     doc.build(story)
+
     buffer.seek(0)
+
     return buffer

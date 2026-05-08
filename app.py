@@ -141,33 +141,17 @@ def export_pdf():
         top_disease = data.get('top', 'Disease')
 
         top3_rf = [(row[0], row[1]) for row in rf_raw]
-        top3_nn = [(row[0], row[1]) for row in nn_raw]
-
-        all_model_results = {
-            '🤖 Random Forest': {
-                'disease':    top3_rf[0][0] if top3_rf else '',
-                'confidence': top3_rf[0][1] if top3_rf else 0
-            },
-            '🧠 Neural Network': {
-                'disease':    top3_nn[0][0] if top3_nn else '',
-                'confidence': top3_nn[0][1] if top3_nn else 0
-            }
-        }
 
         pdf_buffer = generate_pdf_report(
             symptoms,
             top3_rf,
-            top3_nn,
-            all_model_results,
             desc,
             precs,
             sev_score,
             risk
         )
-
         filename = f"MedPredict_{top_disease.replace(' ', '_')}.pdf"
 
-        # Fixed: pass pdf_buffer directly, no double BytesIO wrapping
         return send_file(
             pdf_buffer,
             mimetype='application/pdf',
