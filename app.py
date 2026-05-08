@@ -128,58 +128,58 @@ def predict_doc():
 
 @app.route('/export-pdf', methods=['POST'])
 def export_pdf():
-    """
-    Generates PDF report using existing utils.py generate_pdf_report function.
-    Returns the PDF file as a download.
-    """
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    symptoms    = data.get('symptoms', [])
-    rf_raw      = data.get('rf', [])
-    nn_raw      = data.get('nn', [])
-    sev_score   = data.get('score', 0)
-    risk        = data.get('sev', 'Unknown')
-    desc        = data.get('desc', '')
-    precs       = data.get('precs', [])
-    top_disease = data.get('top', 'Disease')
+        symptoms    = data.get('symptoms', [])
+        rf_raw      = data.get('rf', [])
+        nn_raw      = data.get('nn', [])
+        sev_score   = data.get('score', 0)
+        risk        = data.get('sev', 'Unknown')
+        desc        = data.get('desc', '')
+        precs       = data.get('precs', [])
+        top_disease = data.get('top', 'Disease')
 
-    # Convert lists back to tuples for utils.py compatibility
-    top3_rf = [(row[0], row[1]) for row in rf_raw]
-    top3_nn = [(row[0], row[1]) for row in nn_raw]
+        top3_rf = [(row[0], row[1]) for row in rf_raw]
+        top3_nn = [(row[0], row[1]) for row in nn_raw]
 
-    # Rebuild all_model_results dict expected by generate_pdf_report
-    all_model_results = {
-        '🤖 Random Forest': {
-            'disease':    top3_rf[0][0] if top3_rf else '',
-            'confidence': top3_rf[0][1] if top3_rf else 0
-        },
-        '🧠 Neural Network': {
-            'disease':    top3_nn[0][0] if top3_nn else '',
-            'confidence': top3_nn[0][1] if top3_nn else 0
+        all_model_results = {
+            '🤖 Random Forest': {
+                'disease':    top3_rf[0][0] if top3_rf else '',
+                'confidence': top3_rf[0][1] if top3_rf else 0
+            },
+            '🧠 Neural Network': {
+                'disease':    top3_nn[0][0] if top3_nn else '',
+                'confidence': top3_nn[0][1] if top3_nn else 0
+            }
         }
-    }
 
-    # Call existing utils.py function — zero changes to logic
-    pdf_buffer = generate_pdf_report(
-        symptoms,
-        top3_rf,
-        top3_nn,
-        all_model_results,
-        desc,
-        precs,
-        sev_score,
-        risk
-    )
+        pdf_buffer = generate_pdf_report(
+            symptoms,
+            top3_rf,
+            top3_nn,
+            all_model_results,
+            desc,
+            precs,
+            sev_score,
+            risk
+        )
 
-    filename = f"MedPredict_{top_disease.replace(' ', '_')}.pdf"
+        filename = f"MedPredict_{top_disease.replace(' ', '_')}.pdf"
 
-    return send_file(
-        io.BytesIO(pdf_buffer.read()),
-        mimetype='application/pdf',
-        as_attachment=True,
-        download_name=filename
-    )
+        # Fixed: pass pdf_buffer directly, no double BytesIO wrapping
+        return send_file(
+            pdf_buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=filename
+        )
 
+    except Exception as e:
+        import traceback
+        print("PDF GENERATION ERROR:")
+        print(traceback.format_exc())
+        return jsonify({'error': f'PDF generation failed: {str(e)}'}), 500
 
 # ══════════════════════════════════════════════════════════════
 # RUN

@@ -4,6 +4,8 @@ import numpy as np
 import tensorflow as tf
 from rapidfuzz import process, fuzz
 import io
+import os
+import platform
 
 # ══════════════════════════════════════════════════════════════
 # SYMPTOM ALIAS DICTIONARY
@@ -501,7 +503,8 @@ def extract_text_from_file(file_bytes, file_name):
         try:
             import pytesseract
             from PIL import Image
-            pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+            if platform.system() == 'Windows':
+                pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
             image = Image.open(io.BytesIO(file_bytes))
             text  = pytesseract.image_to_string(image)
         except Exception as e:
