@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <title>MedPredict AI</title>
     <link
@@ -12,9 +12,6 @@
       rel="stylesheet"
     />
     <style>
-      /* ══════════════════════════════════════════════════════════
-   RESET & VARIABLES
-══════════════════════════════════════════════════════════ */
       *,
       *::before,
       *::after {
@@ -50,10 +47,6 @@
         overflow: hidden;
       }
 
-      /* ══════════════════════════════════════════════════════════
-   LAYOUT  — desktop: sidebar + main side by side
-            mobile:  sidebar hidden off-screen, slides in
-══════════════════════════════════════════════════════════ */
       .app {
         display: flex;
         height: 100vh;
@@ -61,7 +54,7 @@
         position: relative;
       }
 
-      /* ── SIDEBAR ─────────────────────────────────────────────── */
+      /* ── SIDEBAR ── */
       .sidebar {
         width: var(--sidebar-w);
         min-width: var(--sidebar-w);
@@ -75,11 +68,9 @@
         flex-shrink: 0;
         transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
       }
-
       .sidebar-top {
         padding: 12px 12px 6px;
       }
-
       .new-btn {
         display: flex;
         align-items: center;
@@ -100,7 +91,6 @@
       .new-btn:hover {
         background: var(--hover);
       }
-
       .sidebar-scroll {
         flex: 1;
         overflow-y: auto;
@@ -113,7 +103,6 @@
         background: #d0d0d0;
         border-radius: 2px;
       }
-
       .group-label {
         font-size: 0.68rem;
         font-weight: 600;
@@ -122,7 +111,6 @@
         letter-spacing: 0.9px;
         padding: 12px 16px 5px;
       }
-
       .session-item {
         display: flex;
         align-items: center;
@@ -151,7 +139,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-
       .sidebar-footer {
         position: absolute;
         bottom: 0;
@@ -170,8 +157,6 @@
       .sidebar-footer:hover {
         background: var(--hover);
       }
-
-      /* Overlay (mobile only) */
       .sidebar-overlay {
         display: none;
         position: fixed;
@@ -180,7 +165,7 @@
         z-index: 150;
       }
 
-      /* ── MAIN ─────────────────────────────────────────────────── */
+      /* ── MAIN ── */
       .main {
         flex: 1;
         display: flex;
@@ -190,7 +175,6 @@
         min-width: 0;
       }
 
-      /* Header */
       .header {
         height: 52px;
         border-bottom: 1px solid var(--border);
@@ -235,7 +219,7 @@
         font-weight: 600;
       }
 
-      /* ── CHAT AREA ───────────────────────────────────────────── */
+      /* ── CHAT AREA ── */
       .chat-area {
         flex: 1;
         overflow-y: auto;
@@ -248,7 +232,6 @@
         background: #d0d0d0;
         border-radius: 2px;
       }
-
       .chat-inner {
         max-width: 700px;
         width: 100%;
@@ -257,8 +240,6 @@
         display: flex;
         flex-direction: column;
       }
-
-      /* Welcome */
       .welcome {
         display: flex;
         flex-direction: column;
@@ -284,7 +265,7 @@
         max-width: 340px;
       }
 
-      /* ── MESSAGE BUBBLES ─────────────────────────────────────── */
+      /* ── BUBBLES ── */
       .msg-user {
         display: flex;
         justify-content: flex-end;
@@ -314,7 +295,6 @@
         font-weight: 600;
         flex-shrink: 0;
       }
-
       .msg-ai {
         display: flex;
         align-items: flex-start;
@@ -339,7 +319,6 @@
         min-width: 0;
       }
 
-      /* Typing dots */
       @keyframes blink {
         0%,
         80%,
@@ -369,9 +348,7 @@
         padding: 10px 0;
       }
 
-      /* ══════════════════════════════════════════════════════════
-   PREDICTION CARDS  — clean, no RF/NN labels
-══════════════════════════════════════════════════════════ */
+      /* ── PREDICTION CARDS ── */
       .preds-header {
         display: flex;
         justify-content: space-between;
@@ -382,7 +359,6 @@
         font-size: 0.975rem;
         font-weight: 600;
       }
-
       .export-btn {
         display: flex;
         align-items: center;
@@ -405,8 +381,6 @@
         background: #f4f4f4;
         border-color: #c0c0c0;
       }
-
-      /* Disease card */
       .pred-card {
         border: 1.5px solid var(--border);
         border-radius: 12px;
@@ -428,7 +402,6 @@
       .pred-card.top-card {
         border-color: var(--blue);
       }
-
       .pred-left {
         display: flex;
         flex-direction: column;
@@ -436,7 +409,6 @@
         flex: 1;
         min-width: 0;
       }
-
       .pred-name {
         font-size: 0.925rem;
         font-weight: 600;
@@ -463,7 +435,6 @@
         padding: 2px 8px;
         white-space: nowrap;
       }
-
       .pred-meta {
         display: flex;
         align-items: center;
@@ -471,8 +442,6 @@
         font-size: 0.78rem;
         color: var(--sub);
       }
-
-      /* Severity badge */
       .sev-badge {
         border-radius: 6px;
         padding: 2px 8px;
@@ -495,8 +464,6 @@
         background: #f0f0f0;
         color: #666;
       }
-
-      /* Confidence meter */
       .conf-wrap {
         display: flex;
         flex-direction: column;
@@ -522,8 +489,6 @@
         font-size: 0.68rem;
         color: var(--sub);
       }
-
-      /* Confidence bar */
       .conf-bar-track {
         width: 64px;
         height: 4px;
@@ -546,7 +511,7 @@
         background: #bbb;
       }
 
-      /* ── DETAIL CARD ─────────────────────────────────────────── */
+      /* ── DETAIL CARD ── */
       .sec-label {
         font-size: 0.72rem;
         font-weight: 600;
@@ -597,7 +562,6 @@
         color: #444;
         line-height: 1.75;
       }
-
       .prec-item {
         display: flex;
         align-items: flex-start;
@@ -612,7 +576,6 @@
         flex-shrink: 0;
         margin-top: 2px;
       }
-
       .error-msg {
         font-size: 0.875rem;
         color: #555;
@@ -620,15 +583,12 @@
         line-height: 1.65;
       }
 
-      /* ══════════════════════════════════════════════════════════
-   INPUT BAR
-══════════════════════════════════════════════════════════ */
+      /* ══ INPUT BAR ══ */
       .input-section {
         flex-shrink: 0;
         border-top: 1px solid var(--border);
         background: #fff;
-        /* safe area for mobile (notch) */
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        padding-bottom: max(env(safe-area-inset-bottom, 0px), 12px);
       }
       .input-inner {
         max-width: 700px;
@@ -636,52 +596,77 @@
         padding: 12px 16px 14px;
       }
 
+      /* The main input card */
       .input-wrap {
-        position: relative;
-      }
-      .input-textarea {
-        width: 100%;
-        background: var(--input-bg);
-        border: 1.5px solid transparent;
-        border-radius: 16px;
-        padding: 12px 50px 12px 16px;
-        font-size: 0.9rem;
-        font-family: "DM Sans", sans-serif;
-        color: var(--text);
-        resize: none;
-        outline: none;
-        min-height: 50px;
-        max-height: 140px;
-        line-height: 1.5;
-        transition:
-          border-color 0.15s,
-          background 0.15s;
-        -webkit-appearance: none;
-      }
-      .input-textarea:focus {
-        border-color: #c0c0c0;
         background: #fff;
+        border: 1.5px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: border-color 0.15s;
       }
-      .input-textarea::placeholder {
-        color: #aaa;
+      .input-wrap:focus-within {
+        border-color: var(--blue);
       }
 
+      /* Toolbar row: TOP — Voice | Attach  ————  Send */
+      .input-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 10px 7px;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+      }
+      .toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      /* Pill buttons */
+      .tool-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 6px 14px;
+        cursor: pointer;
+        color: #555;
+        font-size: 0.8rem;
+        font-weight: 500;
+        font-family: "DM Sans", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.15s;
+      }
+      .tool-btn:hover,
+      .tool-btn:active {
+        background: #eef5fd;
+        border-color: var(--blue);
+        color: var(--blue);
+      }
+      .tool-btn.active {
+        background: #eef5fd;
+        border-color: var(--blue);
+        color: var(--blue);
+      }
+
+      /* Send button */
       .send-btn {
-        position: absolute;
-        right: 10px;
-        bottom: 9px;
-        width: 32px;
-        height: 32px;
+        width: 34px;
+        height: 34px;
         background: #111;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         color: #fff;
-        font-size: 0.95rem;
+        font-size: 1rem;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: background 0.15s;
+        flex-shrink: 0;
         -webkit-tap-highlight-color: transparent;
       }
       .send-btn:hover {
@@ -692,37 +677,25 @@
         cursor: default;
       }
 
-      .input-actions {
-        display: flex;
-        align-items: center;
-        gap: 2px;
-        margin-top: 8px;
-      }
-      .action-btn {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        background: none;
+      /* Textarea — below toolbar */
+      .input-textarea {
+        width: 100%;
+        background: #fff;
         border: none;
-        cursor: pointer;
-        color: var(--sub);
-        font-size: 0.8rem;
-        padding: 6px 10px;
-        border-radius: 8px;
+        outline: none;
+        padding: 11px 16px 14px;
+        font-size: 0.9rem;
         font-family: "DM Sans", sans-serif;
-        -webkit-tap-highlight-color: transparent;
-        transition:
-          color 0.12s,
-          background 0.12s;
-      }
-      .action-btn:hover,
-      .action-btn:active {
         color: var(--text);
-        background: #f0f0f0;
+        resize: none;
+        min-height: 52px;
+        max-height: 120px;
+        line-height: 1.5;
+        -webkit-appearance: none;
+        display: block;
       }
-      .action-btn.active {
-        color: var(--blue);
-        background: #eef5fd;
+      .input-textarea::placeholder {
+        color: #bbb;
       }
 
       .input-disclaimer {
@@ -732,7 +705,7 @@
         margin-top: 9px;
       }
 
-      /* ── PANELS ───────────────────────────────────────────────── */
+      /* ── PANELS ── */
       .panel {
         display: none;
         margin-top: 10px;
@@ -744,14 +717,12 @@
       .panel.open {
         display: block;
       }
-
       .panel-note {
         font-size: 0.8rem;
         color: var(--sub);
         margin-bottom: 11px;
         text-align: center;
       }
-
       .voice-start-btn {
         display: inline-flex;
         align-items: center;
@@ -771,7 +742,6 @@
       .voice-start-btn:hover {
         background: #333;
       }
-
       .voice-status {
         font-size: 0.78rem;
         color: var(--sub);
@@ -806,8 +776,6 @@
       .use-voice-btn:hover {
         background: #3a7fc9;
       }
-
-      /* Doc panel */
       .drop-area {
         border: 2px dashed #d0d0d0;
         border-radius: 10px;
@@ -846,7 +814,6 @@
         margin-top: 7px;
         font-weight: 500;
       }
-
       .doc-extra {
         width: 100%;
         margin-top: 9px;
@@ -869,7 +836,6 @@
       .doc-extra::placeholder {
         color: #aaa;
       }
-
       .analyze-btn {
         width: 100%;
         margin-top: 9px;
@@ -893,11 +859,8 @@
         cursor: default;
       }
 
-      /* ══════════════════════════════════════════════════════════
-   MOBILE  (≤ 640px)
-══════════════════════════════════════════════════════════ */
+      /* ══ MOBILE ══ */
       @media (max-width: 640px) {
-        /* Sidebar: slide in from left */
         .sidebar {
           position: fixed;
           top: 0;
@@ -912,24 +875,16 @@
         .sidebar-overlay.open {
           display: block;
         }
-
-        /* Show hamburger in header */
         .menu-btn {
           display: flex;
         }
-
-        /* Chat padding tighter */
         .chat-inner {
           padding: 20px 12px 16px;
         }
-
-        /* Bubbles full-width friendlier */
         .msg-user-bubble {
           max-width: 82%;
           font-size: 0.875rem;
         }
-
-        /* Prediction cards */
         .pred-card {
           padding: 11px 13px;
         }
@@ -942,8 +897,6 @@
         .conf-bar-track {
           width: 52px;
         }
-
-        /* Detail card */
         .detail-card {
           padding: 14px;
         }
@@ -953,29 +906,24 @@
         .prec-item {
           font-size: 0.84rem;
         }
-
-        /* Input */
         .input-inner {
           padding: 10px 12px 12px;
         }
         .input-textarea {
           font-size: 0.875rem;
-          padding: 11px 48px 11px 14px;
+        }
+        .tool-btn {
+          padding: 5px 10px;
+          font-size: 0.74rem;
         }
         .send-btn {
-          right: 9px;
-          bottom: 8px;
           width: 30px;
           height: 30px;
           font-size: 0.85rem;
         }
-
-        /* Disclaimer shorter on mobile */
         .input-disclaimer {
           display: none;
         }
-
-        /* Welcome */
         .welcome {
           padding: 32px 16px;
           min-height: 50vh;
@@ -983,8 +931,6 @@
         .welcome-title {
           font-size: 1.3rem;
         }
-
-        /* Preds header */
         .preds-title {
           font-size: 0.9rem;
         }
@@ -994,9 +940,6 @@
         }
       }
 
-      /* ══════════════════════════════════════════════════════════
-   MEDIUM (641px – 900px) — tablet
-══════════════════════════════════════════════════════════ */
       @media (min-width: 641px) and (max-width: 900px) {
         :root {
           --sidebar-w: 220px;
@@ -1009,7 +952,6 @@
   </head>
   <body>
     <div class="app">
-      <!-- ══ SIDEBAR ══════════════════════════════════════════ -->
       <div
         class="sidebar-overlay"
         id="sidebarOverlay"
@@ -1026,9 +968,7 @@
         <div class="sidebar-footer">⚙️ &nbsp; Settings</div>
       </div>
 
-      <!-- ══ MAIN ═════════════════════════════════════════════ -->
       <div class="main">
-        <!-- Header -->
         <div class="header">
           <button
             class="menu-btn"
@@ -1042,7 +982,6 @@
           <span class="header-title">MedPredict AI</span>
         </div>
 
-        <!-- Chat -->
         <div class="chat-area" id="chatArea">
           <div class="chat-inner" id="chatInner">
             <div class="welcome" id="welcomeScreen">
@@ -1055,42 +994,43 @@
           </div>
         </div>
 
-        <!-- ══ INPUT BAR ════════════════════════════════════ -->
+        <!-- ══ INPUT BAR ══ -->
         <div class="input-section">
           <div class="input-inner">
             <div class="input-wrap">
+              <div class="input-toolbar">
+                <div class="toolbar-left">
+                  <button
+                    class="tool-btn"
+                    id="voiceToggle"
+                    onclick="togglePanel('voice')"
+                  >
+                    🎙️ Voice
+                  </button>
+                  <button
+                    class="tool-btn"
+                    id="docToggle"
+                    onclick="togglePanel('doc')"
+                  >
+                    📄 Attach
+                  </button>
+                </div>
+                <button
+                  class="send-btn"
+                  id="sendBtn"
+                  onclick="handleSend()"
+                  title="Send"
+                >
+                  ➤
+                </button>
+              </div>
               <textarea
                 class="input-textarea"
                 id="mainInput"
-                placeholder="Describe your symptoms..."
+                placeholder="Describe your symptoms in detail..."
                 rows="2"
                 onkeydown="handleKey(event)"
               ></textarea>
-              <button
-                class="send-btn"
-                id="sendBtn"
-                onclick="handleSend()"
-                title="Send"
-              >
-                ➤
-              </button>
-            </div>
-
-            <div class="input-actions">
-              <button
-                class="action-btn"
-                id="voiceToggle"
-                onclick="togglePanel('voice')"
-              >
-                🎙️ Voice
-              </button>
-              <button
-                class="action-btn"
-                id="docToggle"
-                onclick="togglePanel('doc')"
-              >
-                📄 Document
-              </button>
             </div>
 
             <!-- Voice panel -->
@@ -1163,26 +1103,18 @@
           </div>
         </div>
       </div>
-      <!-- end .main -->
     </div>
-    <!-- end .app -->
 
     <script>
-      // ══════════════════════════════════════════════════════════
-      // STATE
-      // ══════════════════════════════════════════════════════════
-      let sessions = [];
-      let currentSessionId = null;
-      let chosenFile = null;
-      let voiceFinalText = "";
-      let lastPredictionData = null;
+      let sessions = [],
+        currentSessionId = null,
+        chosenFile = null,
+        voiceFinalText = "",
+        lastPredictionData = null;
 
-      // ══════════════════════════════════════════════════════════
-      // SIDEBAR  — mobile open/close
-      // ══════════════════════════════════════════════════════════
       function toggleSidebar() {
-        const sb = document.getElementById("sidebar");
-        const ov = document.getElementById("sidebarOverlay");
+        const sb = document.getElementById("sidebar"),
+          ov = document.getElementById("sidebarOverlay");
         const isOpen = sb.classList.contains("open");
         sb.classList.toggle("open", !isOpen);
         ov.classList.toggle("open", !isOpen);
@@ -1191,10 +1123,9 @@
         document.getElementById("sidebar").classList.remove("open");
         document.getElementById("sidebarOverlay").classList.remove("open");
       }
-
       function renderSidebar() {
-        const list = document.getElementById("sessionList");
-        const groups = {};
+        const list = document.getElementById("sessionList"),
+          groups = {};
         sessions.forEach((s) => {
           (groups[s.date] = groups[s.date] || []).push(s);
         });
@@ -1203,20 +1134,15 @@
           html += `<div class="group-label">${date}</div>`;
           items.forEach((s) => {
             const a = s.id === currentSessionId ? " active" : "";
-            html += `<div class="session-item${a}" onclick="loadSession(${s.id}); closeSidebar()">
-        <span class="session-icon">💬</span>
-        <span class="session-title">${esc(s.title)}</span>
-      </div>`;
+            html += `<div class="session-item${a}" onclick="loadSession(${s.id});closeSidebar()"><span class="session-icon">💬</span><span class="session-title">${esc(s.title)}</span></div>`;
           });
         }
         list.innerHTML = html;
       }
-
       function loadSession(id) {
         currentSessionId = id;
         renderSidebar();
       }
-
       function newAnalysis() {
         currentSessionId = null;
         lastPredictionData = null;
@@ -1224,7 +1150,6 @@
         renderSidebar();
         showWelcome();
       }
-
       function addSession(text) {
         const title = text.length > 36 ? text.slice(0, 36).trim() + "…" : text;
         const ns = { id: Date.now(), title, date: "Today" };
@@ -1233,16 +1158,9 @@
         renderSidebar();
       }
 
-      // ══════════════════════════════════════════════════════════
-      // CHAT HELPERS
-      // ══════════════════════════════════════════════════════════
       function showWelcome() {
-        document.getElementById("chatInner").innerHTML = `
-    <div class="welcome" id="welcomeScreen">
-      <div class="welcome-icon">🩺</div>
-      <div class="welcome-title">MedPredict AI</div>
-      <div class="welcome-sub">Describe your symptoms for AI-powered disease analysis</div>
-    </div>`;
+        document.getElementById("chatInner").innerHTML =
+          `<div class="welcome" id="welcomeScreen"><div class="welcome-icon">🩺</div><div class="welcome-title">MedPredict AI</div><div class="welcome-sub">Describe your symptoms for AI-powered disease analysis</div></div>`;
       }
       function hideWelcome() {
         const w = document.getElementById("welcomeScreen");
@@ -1251,29 +1169,22 @@
 
       function appendUserBubble(text, fileName) {
         hideWelcome();
-        const inner = document.getElementById("chatInner");
-        const div = document.createElement("div");
+        const inner = document.getElementById("chatInner"),
+          div = document.createElement("div");
         div.className = "msg-user";
         const fn = fileName
           ? ` <span style="font-size:.75rem;color:var(--sub)">(+ ${esc(fileName)})</span>`
           : "";
-        div.innerHTML = `
-    <div class="msg-user-bubble">${esc(text)}${fn}</div>
-    <div class="msg-avatar">U</div>`;
+        div.innerHTML = `<div class="msg-user-bubble">${esc(text)}${fn}</div><div class="msg-avatar">U</div>`;
         inner.appendChild(div);
         scrollBottom();
       }
-
       function appendTyping() {
-        const inner = document.getElementById("chatInner");
-        const div = document.createElement("div");
+        const inner = document.getElementById("chatInner"),
+          div = document.createElement("div");
         div.className = "msg-ai";
         div.id = "typingIndicator";
-        div.innerHTML = `
-    <div class="msg-ai-icon">🩺</div>
-    <div class="typing-wrap">
-      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-    </div>`;
+        div.innerHTML = `<div class="msg-ai-icon">🩺</div><div class="typing-wrap"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
         inner.appendChild(div);
         scrollBottom();
       }
@@ -1282,15 +1193,7 @@
         if (t) t.remove();
       }
 
-      // ══════════════════════════════════════════════════════════
-      // RESULT CARD  — clean 3-disease view, no RF/NN labels
-      // ══════════════════════════════════════════════════════════
       function buildTop3(rf, nn) {
-        /*
-    Merge RF top-3 and NN top-3, pick best 3 unique diseases.
-    Score = RF_conf * 0.6 + NN_conf * 0.4  (RF weighted higher as primary model).
-    Each disease appears once (highest combined score).
-  */
         const scores = {};
         rf.forEach(([name, conf]) => {
           scores[name] = (scores[name] || 0) + conf * 0.6;
@@ -1298,17 +1201,12 @@
         nn.forEach(([name, conf]) => {
           scores[name] = (scores[name] || 0) + conf * 0.4;
         });
-
-        // Sort by combined score, take top 3
         const sorted = Object.entries(scores)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 3);
-
-        // Normalise so top shown confidence is the RF top confidence (keeps real model numbers)
-        const rfTop = rf[0][1]; // primary model top confidence
-        const rawTop = sorted[0][1];
-        const scale = rawTop > 0 ? rfTop / rawTop : 1;
-
+        const rfTop = rf[0][1],
+          rawTop = sorted[0][1],
+          scale = rawTop > 0 ? rfTop / rawTop : 1;
         return sorted.map(([name, rawScore], i) => ({
           name,
           conf: Math.min(Math.round(rawScore * scale * 10) / 10, 99.9),
@@ -1317,116 +1215,70 @@
       }
 
       function appendResultCard(data) {
-        const inner = document.getElementById("chatInner");
-        const wrap = document.createElement("div");
+        const inner = document.getElementById("chatInner"),
+          wrap = document.createElement("div");
         wrap.className = "msg-ai";
         const bid = "b_" + Date.now();
-        wrap.innerHTML = `
-    <div class="msg-ai-icon">🩺</div>
-    <div class="msg-ai-body" id="${bid}"></div>`;
+        wrap.innerHTML = `<div class="msg-ai-icon">🩺</div><div class="msg-ai-body" id="${bid}"></div>`;
         inner.appendChild(wrap);
-
         const body = document.getElementById(bid);
-
-        // Error state
         if (!data || data.error === "not_enough_symptoms") {
           const cnt =
             data && data.symptoms_found ? data.symptoms_found.length : 0;
-          body.innerHTML = `<div class="error-msg">
-      ⚠️ Couldn't identify enough symptoms.
-      ${cnt > 0 ? `Found <strong>${cnt}</strong> symptom(s) — need at least 2.` : ""}
-      Try specific terms like <em>headache</em>, <em>fever</em>, <em>nausea</em>, <em>fatigue</em>, <em>cough</em>.
-    </div>`;
+          body.innerHTML = `<div class="error-msg">⚠️ Couldn't identify enough symptoms. ${cnt > 0 ? `Found <strong>${cnt}</strong> symptom(s) — need at least 2.` : ""} Try specific terms like <em>headache</em>, <em>fever</em>, <em>nausea</em>, <em>fatigue</em>, <em>cough</em>.</div>`;
           scrollBottom();
           return;
         }
-
         lastPredictionData = data;
         const { rf, nn, sev, top, desc, precs } = data;
-
-        // Build merged top-3
         const top3 = buildTop3(rf, nn);
-
         const sevIcon = sev === "High" ? "🔴" : sev === "Medium" ? "🔶" : "🟢";
         const sb = (s) =>
           `<span class="sev-badge sev-${s || "Unknown"}">${s || "Unknown"}</span>`;
-
-        const rankLabels = ["Top", "2nd", "3rd"];
-        const rankClasses = ["top-card", "", ""];
+        const rankLabels = ["Top", "2nd", "3rd"],
+          rankClasses = ["top-card", "", ""];
         const badgeClass = ["badge-top", "badge-rank", "badge-rank"];
-        const confClass = ["conf-top", "conf-2nd", "conf-3rd"];
-        const fillClass = ["fill-top", "fill-2nd", "fill-3rd"];
+        const confClass = ["conf-top", "conf-2nd", "conf-3rd"],
+          fillClass = ["fill-top", "fill-2nd", "fill-3rd"];
         const maxConf = top3[0]?.conf || 100;
-
         const cardsHtml = top3
           .map(
             (d, i) => `
-    <div class="pred-card ${rankClasses[i]}">
-      <div class="pred-left">
-        <div class="pred-name">
-          ${esc(d.name)}
-          <span class="${badgeClass[i]}">${rankLabels[i]}</span>
-        </div>
-        <div class="pred-meta">${sb(i === 0 ? sev : i === 1 ? "Medium" : "Low")}</div>
-      </div>
-      <div class="conf-wrap">
-        <div class="conf-num ${confClass[i]}">${d.conf}%</div>
-        <div class="conf-bar-track">
-          <div class="conf-bar-fill ${fillClass[i]}"
-               style="width:${Math.round((d.conf / maxConf) * 100)}%"></div>
-        </div>
-        <div class="conf-sub">confidence</div>
-      </div>
-    </div>`,
+          <div class="pred-card ${rankClasses[i]}">
+            <div class="pred-left">
+              <div class="pred-name">${esc(d.name)}<span class="${badgeClass[i]}">${rankLabels[i]}</span></div>
+              <div class="pred-meta">${sb(i === 0 ? sev : i === 1 ? "Medium" : "Low")}</div>
+            </div>
+            <div class="conf-wrap">
+              <div class="conf-num ${confClass[i]}">${d.conf}%</div>
+              <div class="conf-bar-track"><div class="conf-bar-fill ${fillClass[i]}" style="width:${Math.round((d.conf / maxConf) * 100)}%"></div></div>
+              <div class="conf-sub">confidence</div>
+            </div>
+          </div>`,
           )
           .join("");
-
         body.innerHTML = `
-    <div class="preds-header">
-      <div class="preds-title">Disease Predictions</div>
-      <button class="export-btn" onclick="exportPDF()">📄 Export Report</button>
-    </div>
-    ${cardsHtml}
-    <div class="sec-label">Detailed Analysis</div>
-    <div class="detail-card">
-      <div class="detail-header">
-        <div class="detail-icon-box">${sevIcon}</div>
-        <div>
-          <div class="detail-name">${esc(top)}</div>
-          <div class="detail-sev">Severity: ${sev}</div>
-        </div>
-      </div>
-      <div class="detail-section">Description</div>
-      <div class="detail-desc">${esc(desc)}</div>
-      <div class="detail-section">Recommended Precautions</div>
-      ${precs
-        .map(
-          (p) => `
-        <div class="prec-item">
-          <span class="prec-icon">⊙</span>
-          <span>${esc(p.charAt(0).toUpperCase() + p.slice(1))}</span>
-        </div>`,
-        )
-        .join("")}
-    </div>`;
-
+          <div class="preds-header"><div class="preds-title">Disease Predictions</div><button class="export-btn" onclick="exportPDF()">📄 Export Report</button></div>
+          ${cardsHtml}
+          <div class="sec-label">Detailed Analysis</div>
+          <div class="detail-card">
+            <div class="detail-header"><div class="detail-icon-box">${sevIcon}</div><div><div class="detail-name">${esc(top)}</div><div class="detail-sev">Severity: ${sev}</div></div></div>
+            <div class="detail-section">Description</div><div class="detail-desc">${esc(desc)}</div>
+            <div class="detail-section">Recommended Precautions</div>
+            ${precs.map((p) => `<div class="prec-item"><span class="prec-icon">⊙</span><span>${esc(p.charAt(0).toUpperCase() + p.slice(1))}</span></div>`).join("")}
+          </div>`;
         scrollBottom();
       }
 
-      // ══════════════════════════════════════════════════════════
-      // SEND  →  POST /predict
-      // ══════════════════════════════════════════════════════════
       async function handleSend() {
-        const input = document.getElementById("mainInput");
-        const text = input.value.trim();
+        const input = document.getElementById("mainInput"),
+          text = input.value.trim();
         if (!text) return;
-
         input.value = "";
         setDisabled(true);
         appendUserBubble(text, null);
         appendTyping();
         addSession(text);
-
         try {
           const res = await fetch("/predict", {
             method: "POST",
@@ -1440,11 +1292,9 @@
           removeTyping();
           appendResultCard(null);
         }
-
         setDisabled(false);
         document.getElementById("mainInput").focus();
       }
-
       function handleKey(e) {
         if (e.key === "Enter" && !e.shiftKey) {
           e.preventDefault();
@@ -1452,9 +1302,6 @@
         }
       }
 
-      // ══════════════════════════════════════════════════════════
-      // DOCUMENT UPLOAD  →  POST /predict-doc
-      // ══════════════════════════════════════════════════════════
       async function analyzeDocument() {
         if (!chosenFile) {
           alert("Please choose a file first.");
@@ -1462,17 +1309,14 @@
         }
         const extra = document.getElementById("docExtra").value.trim();
         const displayText = `[Document: ${chosenFile.name}]${extra ? " " + extra : ""}`;
-
         togglePanel("doc");
         setDisabled(true);
         appendUserBubble(displayText, chosenFile.name);
         appendTyping();
         addSession(chosenFile.name);
-
         const fd = new FormData();
         fd.append("file", chosenFile);
         fd.append("extra", extra);
-
         try {
           const res = await fetch("/predict-doc", { method: "POST", body: fd });
           const data = await res.json();
@@ -1482,16 +1326,12 @@
           removeTyping();
           appendResultCard(null);
         }
-
         setDisabled(false);
         chosenFile = null;
         document.getElementById("fileChosenLabel").style.display = "none";
         document.getElementById("fileInput").value = "";
       }
 
-      // ══════════════════════════════════════════════════════════
-      // PDF EXPORT  →  POST /export-pdf
-      // ══════════════════════════════════════════════════════════
       async function exportPDF() {
         if (!lastPredictionData) return;
         const d = lastPredictionData;
@@ -1514,9 +1354,9 @@
             alert("PDF generation failed.");
             return;
           }
-          const blob = await res.blob();
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
+          const blob = await res.blob(),
+            url = URL.createObjectURL(blob),
+            a = document.createElement("a");
           a.href = url;
           a.download = `MedPredict_${(d.top || "Report").replace(/\s+/g, "_")}.pdf`;
           a.click();
@@ -1526,9 +1366,6 @@
         }
       }
 
-      // ══════════════════════════════════════════════════════════
-      // VOICE
-      // ══════════════════════════════════════════════════════════
       let recognition;
       function startListening() {
         if (
@@ -1577,9 +1414,6 @@
         togglePanel("voice");
       }
 
-      // ══════════════════════════════════════════════════════════
-      // FILE
-      // ══════════════════════════════════════════════════════════
       function fileChosen(e) {
         setFile(e.target.files[0]);
       }
@@ -1603,14 +1437,11 @@
         lbl.style.display = "block";
       }
 
-      // ══════════════════════════════════════════════════════════
-      // PANELS
-      // ══════════════════════════════════════════════════════════
       function togglePanel(name) {
-        const vp = document.getElementById("voicePanel");
-        const dp = document.getElementById("docPanel");
-        const vt = document.getElementById("voiceToggle");
-        const dt = document.getElementById("docToggle");
+        const vp = document.getElementById("voicePanel"),
+          dp = document.getElementById("docPanel");
+        const vt = document.getElementById("voiceToggle"),
+          dt = document.getElementById("docToggle");
         if (name === "voice") {
           const o = vp.classList.contains("open");
           vp.classList.toggle("open", !o);
@@ -1626,9 +1457,6 @@
         }
       }
 
-      // ══════════════════════════════════════════════════════════
-      // UTILS
-      // ══════════════════════════════════════════════════════════
       function setDisabled(d) {
         document.getElementById("sendBtn").disabled = d;
         document.getElementById("mainInput").disabled = d;
@@ -1645,12 +1473,9 @@
           .replace(/"/g, "&quot;");
       }
 
-      // Close sidebar on ESC key (desktop)
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") closeSidebar();
       });
-
-      // INIT
       renderSidebar();
     </script>
   </body>
