@@ -48,10 +48,11 @@ SYMPTOM_ALIASES = {
     "hard to breathe":              "breathlessness",
     "out of breath":                "breathlessness",
     "breathing difficulty":         "breathlessness",
-    "chest tightness":              "chest_pain",
+    "chest tightness":              "breathlessness",
+    "wheezing":                      "breathlessness",
     "chest discomfort":             "chest_pain",
     "heart pain":                   "chest_pain",
-    "tightness in chest":           "chest_pain",
+    "tightness in chest":           "breathlessness",
     "pressure in chest":            "chest_pain",
 
     # ── Cough / cold ──────────────────────────────────────────
