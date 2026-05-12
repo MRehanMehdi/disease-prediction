@@ -12,7 +12,7 @@
 
 **An AI-powered web application that predicts diseases from patient symptoms using an ensemble of classical ML models and a deep learning neural network.**
 
-[ Live Demo](https://disease-predictor-app.up.railway.app/) · [📋 Report](#) · [🐛 Issues](https://github.com/MRehanMehdi/disease-prediction/issues)
+[ Live Demo](https://disease-predictor-app.up.railway.app/) · [ Report](#) · [ Issues](https://github.com/MRehanMehdi/disease-prediction/issues)
 
 </div>
 
